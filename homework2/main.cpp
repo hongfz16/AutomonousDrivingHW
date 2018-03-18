@@ -31,22 +31,22 @@ Mat ReadPointCloud(const vector<Eigen::Vector3d>& points)
 int main()
 {
   PointCloud pointcloud = ReadPointCloudFromTextFile(
-      "/home/hongfz/Documents/PublicCourse/homework2/sample_data/VelodyneDevice32c/0.txt");
+      "/home/hongfz/Documents/Learn/AutomonousDrivingHW/homework2/sample_data/VelodyneDevice32c/0.txt");
 
-  Mat srcImage = imread("/home/hongfz/Documents/OpenCVLearning/LHW2/sample_data/GigECameraDeviceTelephoto/0.jpg");  
+  Mat srcImage = imread("/home/hongfz/Documents/Learn/AutomonousDrivingHW/homework2/sample_data/GigECameraDeviceWideAngle/0.jpg");  
   
   // Generate Point Cloud Picture
-  double PI=3.141592653;
+  // double PI=3.141592653;
 
-  vector<vector<Vector3d> > sortedpoints;
-  preprocess(pointcloud.points,sortedpoints);
-  vector<Vector3d> ground,nonground;
-  SeperateGroundPoints(sortedpoints,ground,nonground,PI/4,0.1,0.1);
-  cout<<ground.size()<<" "<<nonground.size()<<endl;  
+  // vector<vector<Vector3d> > sortedpoints;
+  // preprocess(pointcloud.points,sortedpoints);
+  // vector<Vector3d> ground,nonground;
+  // SeperateGroundPoints(sortedpoints,ground,nonground,PI/4,0.1,0.1);
+  // cout<<ground.size()<<" "<<nonground.size()<<endl;  
 
-  Mat groundmat=ReadPointCloud(ground);
-  Mat nongroundmat=ReadPointCloud(nonground);
-  Generate3DPC(groundmat,nongroundmat);
+  // Mat groundmat=ReadPointCloud(ground);
+  // Mat nongroundmat=ReadPointCloud(nonground);
+  // Generate3DPC(groundmat,nongroundmat);
   
   //Mat cloud=ReadPointCloud(pointcloud.points);
   //Generate3DPC(cloud);
@@ -63,7 +63,7 @@ int main()
   // imshow("grey",grey);
   // waitKey(0);
 
-  //LaneDetect(srcImage);
+  LaneDetect(srcImage);
   waitKey(0);
   return 0;
 }

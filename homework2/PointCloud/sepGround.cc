@@ -27,14 +27,12 @@ inline bool anglecmp(Vector3d& ll,Vector3d& rr)
 void preprocess(vector<Vector3d>& points,vector<vector<Vector3d> >& sortedpoints)
 {
 	sort(points.begin(),points.end(),cmp);
-	//cout<<points.size()<<endl;
 	vector<vector<Vector3d> > classedpoints;
 	vector<Vector3d> tempvv;
 	tempvv.push_back(points[0]);
 	classedpoints.push_back(tempvv);
 	for(size_t i=1;i<points.size();++i)
 	{
-		//cout<<i<<endl;
 		bool flag=true;
 		for(size_t j=classedpoints.size();j>0;--j)
 		{
@@ -49,13 +47,11 @@ void preprocess(vector<Vector3d>& points,vector<vector<Vector3d> >& sortedpoints
 		}
 		if(flag)
 		{
-			//cout<<"here"<<endl;
 			vector<Vector3d> tempv;
 			tempv.push_back(points[i]);
 			classedpoints.push_back(tempv);
 		}
 	}
-	//vector<vector<Vector3d> > sortedpoints;
 	for(size_t i=0;i<classedpoints.size();++i)
 	{
 		vector<Vector3d> temp1;
@@ -74,9 +70,6 @@ void preprocess(vector<Vector3d>& points,vector<vector<Vector3d> >& sortedpoints
 		sortedpoints.push_back(temp1);
 		sortedpoints.push_back(temp2);
 	}
-	// cout<<classedpoints.size()<<endl;
-	// cout<<sortedpoints.size()<<endl;
-	cout<<points.size()<<endl;
 }
 
 inline double xyzdist(Vector3d& p1,Vector3d& p2)
@@ -140,8 +133,6 @@ void SeperateGroundPoints(vector<vector<Vector3d> >& sortedpoints,vector<Vector3
 			}
 			if(state==3)
 			{
-				// for(int k=j-1;k>thresholdpoints[thresholdpoints.size()-1].second;--k)
-				// 	nonground.push_back(spi[k]);
 				startpoints.push_back(pair<Vector3d,int>(spi[j],j));
 				state=0;
 			}

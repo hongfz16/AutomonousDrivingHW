@@ -8,23 +8,6 @@ cc_library(
 )
 
 cc_library(
-    name="LaneDetect",
-    srcs=["LaneDetect.cc"],
-    hdrs=["LaneDetect.h"],
-    deps=["@myopencv//:opencv"],
-)
-
-cc_library(
-    name="DrawHistogram",
-    srcs=["DrawHistogram.cc"],
-    hdrs=["DrawHistogram.h"],
-    deps=[
-        "@myopencv//:opencv",
-        ":pointcloud",
-    ]
-)
-
-cc_library(
     name = "pointcloud",
     srcs = ["pointcloud.cc"],
     hdrs = ["pointcloud.h"],
@@ -41,23 +24,13 @@ cc_library(
     deps=["@myopencv//:opencv"]
 )
 
-cc_library(
-    name="RGB2Grey",
-    srcs=["RGB2Grey.cc"],
-    hdrs=["RGB2Grey.h"],
-    deps=["@myopencv//:opencv"]
-)
-
 cc_binary(
     name = "main",
     srcs = ["main.cpp"],
     deps = [
         "@myopencv//:opencv",
-        ":RGB2Grey",
         ":Generate3DPC",
         ":pointcloud",
-        ":DrawHistogram",
-        ":LaneDetect",
         ":sepGround",
     ],
 )

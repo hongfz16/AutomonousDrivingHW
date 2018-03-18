@@ -11,6 +11,6 @@
 using namespace std;
 using namespace cv;
 
-void LaneDetect(const Mat& srcimg);
+void LaneDetect(const Mat& srcimg,Mat& _result);
 
 #endif //_LANEDETECT_H_

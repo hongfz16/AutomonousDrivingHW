@@ -41,6 +41,8 @@ void DrawHistHight(const vector<Eigen::Vector3d>& points)
 
 	namedWindow("Histogram For Hight",CV_WINDOW_AUTOSIZE);
 	imshow("Histogram For Hight",histImage);
+
+	imwrite("/home/hongfz/Documents/Learn/AutomonousDrivingHW/homework2/DrawHistogram/Histogram/Hight.png",histImage);
 }
 
 void DrawHistDist(const vector<Eigen::Vector3d>& points)
@@ -83,4 +85,6 @@ void DrawHistDist(const vector<Eigen::Vector3d>& points)
 
 	namedWindow("Histogram For Length",CV_WINDOW_AUTOSIZE);
 	imshow("Histogram For Length",histImage);
+
+	imwrite("/home/hongfz/Documents/Learn/AutomonousDrivingHW/homework2/DrawHistogram/Histogram/Length.png",histImage);
 }
