@@ -13,7 +13,7 @@ using namespace cv;
 int main()
 {
   PointCloud pointcloud = ReadPointCloudFromTextFile(
-      "/home/hongfz/Documents/Learn/AutomonousDrivingHW/homework2/sample_data/VelodyneDevice32c/0.txt");
+      "/home/hongfz/Documents/Learn/AutomonousDrivingHW/pony_data/VelodyneDevice32c/152.txt");
 
   // Generate Two Histograms
   DrawHistHight(pointcloud.points);

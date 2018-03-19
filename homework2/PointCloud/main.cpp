@@ -28,7 +28,7 @@ Mat ReadPointCloud(const vector<Eigen::Vector3d>& points)
 int main()
 {
   PointCloud pointcloud = ReadPointCloudFromTextFile(
-      "/home/hongfz/Documents/Learn/AutomonousDrivingHW/pony_data/VelodyneDevice32c/100.txt");
+      "/home/hongfz/Documents/Learn/AutomonousDrivingHW/pony_data/VelodyneDevice32c/152.txt");
 
   // Generate Point Cloud Picture
 
