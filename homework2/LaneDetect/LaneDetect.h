@@ -2,6 +2,8 @@
 #define _LANEDETECT_H_
 
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/objdetect.hpp>
