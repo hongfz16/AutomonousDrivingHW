@@ -10,10 +10,8 @@
 using namespace std;
 using namespace cv;
 
-int main()
+void SingleFrameProc(string path)
 {
-	string path("/home/hongfz/Documents/Learn/AutomonousDrivingHW/pony_data/VelodyneDevice32c/");
-	//vector<Eigen::Vector3d> worldpoints;	
 	vector<Eigen::Vector3d> grounds;
 	vector<Eigen::Vector3d> nongrounds;
 	for(int i=0;i<200;++i)
@@ -31,7 +29,6 @@ int main()
 		for(int j=0;j<ground.size();++j)
 		{
 			LIDAR2World(ground[j],wpoint,pci.rotation,pci.translation);
-			//worldpoints.push_back(wpoint);
 			grounds.push_back(wpoint);
 		}
 		for(int j=0;j<nonground.size();++j)
@@ -40,11 +37,53 @@ int main()
 			nongrounds.push_back(wpoint);
 		}
 	}
-	//Mat wpointcloudmat=ReadPointCloud(worldpoints);
-	//Generate3DPC(wpointcloudmat);
+
+	double meanz=0;
+	for(int i=0;i<grounds.size();++i)
+	{
+		meanz+=grounds[i][2];
+	}
+	meanz/=grounds.size();
+	cout<<meanz<<endl;
+
 	Mat groundmat=ReadPointCloud(grounds);
 	Mat nongroundmat=ReadPointCloud(nongrounds);
 	Generate3DPCSepGround(groundmat,nongroundmat);
+}
+
+void MultiFrameProc(string path,double TH)
+{
+	vector<Eigen::Vector3d> grounds;
+	vector<Eigen::Vector3d> nongrounds;
+	for(int i=0;i<200;++i)
+	{
+		string filename=path+to_string(i)+string(".txt");
+		PointCloud pci=ReadPointCloudFromTextFile(filename);
+		Eigen::Vector3d wpoint;
+
+		for(int i=0;i<pci.points.size();++i)
+		{
+			LIDAR2World(pci.points[i],wpoint,pci.rotation,pci.translation);
+			if(pci.points[i][2]<TH)
+				grounds.push_back(wpoint);
+			else
+				nongrounds.push_back(wpoint);
+		}
+	}
+	Mat groundmat=ReadPointCloud(grounds);
+	Mat nongroundmat=ReadPointCloud(nongrounds);
+	Generate3DPCSepGround(groundmat,nongroundmat);
+}
+
+int main()
+{
+	string path("/home/hongfz/Documents/Learn/AutomonousDrivingHW/pony_data/VelodyneDevice32c/");
+	
+	//The naive way: using threshold to seperate ground points
+	MultiFrameProc(path,-0.8);
+
+	//The algorithm used in homework2
+	//SingleFrameProc(path);
 
 	return 0;
 }

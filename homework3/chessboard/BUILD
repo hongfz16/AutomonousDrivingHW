@@ -1,8 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_binary(
-    name = "opencv_example",
-    srcs = ["opencv_example.cc"],
+    name = "main",
+    srcs = ["ChessboardDistort.cc"],
     deps = [
     	"@myopencv//:opencv"
         #"@opencv//:core",
