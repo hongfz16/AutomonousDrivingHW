@@ -53,14 +53,23 @@ ImageUV Project3dPointToImage(const Eigen::Vector3d& point,
    * Implement the code to project 3D point in camera coordinate system to image plane.
    * https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
    */
+  
+  double xh=point(0)/point(2);
+  double yh=point(1)/point(2);
+  double rsq=xh*xh+yh*yh;
+  double xhh=xh*(1+k1*rsq+k2*rsq*rsq+k3*rsq*rsq*rsq)+2*p1*xh*yh+p2*(rsq+2*xh*xh);
+  double yhh=yh*(1+k1*rsq+k2*rsq*rsq+k3*rsq*rsq*rsq)+p1*(rsq+2*yh*yh)+2*p2*xh*yh;
+  u=fx*xhh+cx;
+  v=fy*yhh+cy;
+
   return {u, v};
 }
 
 std::vector<PixelInfo> ProjectPointCloudToImage(
-    const PointCloud& pointcloud,
-    const Eigen::VectorXd& intrinsic,
-    const Eigen::Affine3d& extrinsic,
-    int image_width, int image_height) {
+  const PointCloud& pointcloud,
+  const Eigen::VectorXd& intrinsic,
+  const Eigen::Affine3d& extrinsic,
+  int image_width, int image_height) {
   std::vector<PixelInfo> pixel_info;
   /*
    * Implement the code to project Pointcloud from Lidar local coordinate system to image plane.
@@ -68,5 +77,18 @@ std::vector<PixelInfo> ProjectPointCloudToImage(
    * before projecting them onto image plane. Pointcloud's horizontal FOV is 360 degree and our
    * camera's horizontal FOV is about 80 here.
    */
+  const double PI=3.141592653;
+  for(int i=0;i<pointcloud.points.size();++i)
+  {
+    Eigen::Vector3d point=pointcloud.points[i];
+    Eigen::Vector3d camera_cor=extrinsic.linear()*point+extrinsic.translation();
+
+    if(camera_cor(2)<0) continue;
+    if(abs(atan2(camera_cor(0),camera_cor(2)))>40*PI/180) continue;
+
+    ImageUV uv=Project3dPointToImage(camera_cor,intrinsic);
+    pixel_info.push_back(PixelInfo(uv,camera_cor));
+  }
+
   return pixel_info;
 }

@@ -6,6 +6,8 @@
 #include <Eigen/Geometry>
 #include <glog/logging.h>
 
+#include <cmath>
+
 #include "common/utils/math/math_utils.h"
 #include "homework2/PointCloud/pointcloud.h"
 
