@@ -40,16 +40,35 @@ void PointCloudViewer::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_N:
       file_index_ = (++file_index_) % pointcloud_files_.size();
       // Load pointcloud data.
+
+      std::string obstacle_path("/home/hongfz/Documents/Learn/AutomonousDrivingHW/sample/obstacle/VelodyneDevice32c/");
+      obstacle_path+=std::to_string(file_index_)+std::string(".bin");
+      std::ifstream fin(obstacle_path,ios::in | ios::binary);
+      interface::perception::PerceptionObstacles obstacles;
+      if(!obstacles.ParseFromIstream(&fin))
+      {
+        cerr<<"Fail to read!"<<endl;
+        return;
+      }
+      points_.clear();
+      for(const auto& obstacle: obstacles.obstacle())
+      {
+        for(const auto& point : obstacle.object_points())
+        {
+          points_.emplace_back(point.x(),point.y(),point.z());
+        }
+      }
+   
       const std::string pointcloud_file = pointcloud_files_[file_index_];
       const PointCloud pointcloud_ = ReadPointCloudFromTextFile(pointcloud_file);
-      CHECK(!pointcloud_.points.empty());
-      LOG(INFO) << "Load pointcloud: " << pointcloud_file;
-      points_.clear();
-      points_.reserve(pointcloud_.points.size());
-      for (const auto& point : pointcloud_.points) {
-        Eigen::Vector3d point_in_world = pointcloud_.rotation * point + pointcloud_.translation;
-        points_.emplace_back(point_in_world.x(), point_in_world.y(), point_in_world.z());
-      }
+      // CHECK(!pointcloud_.points.empty());
+      // LOG(INFO) << "Load pointcloud: " << pointcloud_file;
+      // points_.clear();
+      // points_.reserve(pointcloud_.points.size());
+      // for (const auto& point : pointcloud_.points) {
+      //   Eigen::Vector3d point_in_world = pointcloud_.rotation * point + pointcloud_.translation;
+      //   points_.emplace_back(point_in_world.x(), point_in_world.y(), point_in_world.z());
+      // }
 
       // Load object label if there is a corresponding one.
       labels_.clear();

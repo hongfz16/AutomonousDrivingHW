@@ -52,3 +52,23 @@ cc_binary(
         "@qt//:qt_widgets",
     ],
 )
+
+cc_library(
+    name="obstacle_extract",
+    srcs=["obstacle_extract.cc"],
+    hdrs=["obstacle_extract.h"],
+    deps=[
+        "//common/proto:cc_perception_proto",
+        "//common/proto:cc_object_labeling_3d_proto",
+        "//homework2/PointCloud:pointcloud",
+    ]
+)
+
+cc_binary(
+    name="obstacle_extract_main",
+    srcs=["obstacle_extract_main.cc"],
+    deps=[
+        ":obstacle_extract",
+        "//common/utils/file:file",
+    ]
+)

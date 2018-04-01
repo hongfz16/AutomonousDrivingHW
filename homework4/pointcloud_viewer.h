@@ -4,6 +4,8 @@
 #include <glog/logging.h>
 #include <QtWidgets/QApplication>
 
+#include <fstream>
+
 #include "common/proto/object_labeling_3d.pb.h"
 #include "common/utils/display/painter_widget_base.h"
 #include "common/utils/file/file.h"
@@ -11,6 +13,8 @@
 #include "common/utils/strings/format.h"
 
 #include "homework4/camera_lidar_fusion_utils.h"
+
+using namespace std;
 
 class PointCloudViewer : public utils::display::PainterWidgetBase {
  public:
