@@ -42,14 +42,16 @@ void PointCloudViewer::keyPressEvent(QKeyEvent* event) {
       // Load pointcloud data.
 
       std::string obstacle_path("/home/hongfz/Documents/Learn/AutomonousDrivingHW/sample/obstacle/VelodyneDevice32c/");
-      obstacle_path+=std::to_string(file_index_)+std::string(".bin");
-      std::ifstream fin(obstacle_path,ios::in | ios::binary);
+      obstacle_path+=std::to_string(file_index_)+std::string(".txt");
+      // std::ifstream fin(obstacle_path,ios::in | ios::binary);
+      // interface::perception::PerceptionObstacles obstacles;
+      // if(!obstacles.ParseFromIstream(&fin))
+      // {
+      //   cerr<<"Fail to read!"<<endl;
+      //   return;
+      // }
       interface::perception::PerceptionObstacles obstacles;
-      if(!obstacles.ParseFromIstream(&fin))
-      {
-        cerr<<"Fail to read!"<<endl;
-        return;
-      }
+      file::ReadFileToProto(obstacle_path,&obstacles);
       points_.clear();
       for(const auto& obstacle: obstacles.obstacle())
       {

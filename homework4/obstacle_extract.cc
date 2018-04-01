@@ -74,6 +74,6 @@ void SingleFrameExtract(PointCloud& pointcloud,
 			}
 		}
 		pobs->CopyFrom(obs);
-		cout<<obs.object_points_size()<<endl;
+		//cout<<obs.object_points_size()<<endl;
 	}
 }

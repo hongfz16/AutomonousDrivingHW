@@ -15,7 +15,7 @@ int main()
 	string pointcloud_path("select/VelodyneDevice32c/");
 	string obstacle_path("obstacle/VelodyneDevice32c/");
 
-	int num=20;
+	int num=21;
 	for(int i=0;i<num;++i)
 	{
 		PointCloud pointcloud=ReadPointCloudFromTextFile(
@@ -25,14 +25,15 @@ int main()
 							  &objectlabels);
 		interface::perception::PerceptionObstacles obstacles;
 		SingleFrameExtract(pointcloud,objectlabels,obstacles);
-		ofstream fout(path_prefix+obstacle_path+to_string(i)+string(".bin"),
-					  ios::out | ios::trunc | ios::binary);
-		if(!obstacles.SerializeToOstream(&fout))
-		{
-			cerr<<"Fail to serialize"<<endl;
-			break;
-		}
-		fout.close();
+		// ofstream fout(path_prefix+obstacle_path+to_string(i)+string(".bin"),
+		// 			  ios::out | ios::trunc | ios::binary);
+		// if(!obstacles.SerializeToOstream(&fout))
+		// {
+		// 	cerr<<"Fail to serialize"<<endl;
+		// 	break;
+		// }
+		// fout.close();
+		file::WriteProtoToTextFile(obstacles,path_prefix+obstacle_path+to_string(i)+string(".txt"));
 	}
 	return 0;
 }
