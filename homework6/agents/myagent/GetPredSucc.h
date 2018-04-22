@@ -11,7 +11,8 @@
 #include "glog/logging.h"
 
 using namespace std;
-
+namespace hongfz16
+{
 //Dicide two Point3D is equal
 bool IsEqual(const interface::geometry::Point3D& lp,const interface::geometry::Point3D& rp)
 {
@@ -50,12 +51,12 @@ int CheckRelation(interface::map::Lane& ll,interface::map::Lane& rr)
 	return 4;
 }
 
-void GetPredSucc(const string& filename)
+void GetPredSucc(const string& mapfilename,const string& processedmapfile)
 {
 	interface::map::Map mapdata;
 
 	//PLEASE CHANGE TO THE RIGHT PATH
-	CHECK(file::ReadFileToProto("/home/hongfz/Documents/Learn/AutomonousDrivingHW/homework5/map/grid2/map_proto.txt", &mapdata));
+	CHECK(file::ReadFileToProto(mapfilename, &mapdata));
 	int mapsize=mapdata.lane_size();
 	for(int i=0;i<mapsize;++i)
 	{
@@ -98,7 +99,8 @@ void GetPredSucc(const string& filename)
 			}
 		}
 	}
-	CHECK(file::WriteProtoToTextFile(mapdata,filename));
+	CHECK(file::WriteProtoToTextFile(mapdata,processedmapfile));
 }
 
+}
 #endif //_GETPREDSUCC_H_

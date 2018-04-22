@@ -1,5 +1,5 @@
-agent_name: "pony_sample"
-agent_type: "sample_agent"
+agent_name: "hongfz_simple"
+agent_type: "hongfz_agent"
 route {
   start_point {
     x: 67.699
