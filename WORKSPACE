@@ -52,14 +52,7 @@ new_http_archive(
 new_local_repository(
     name = "opencv",
     build_file = "utils/bazel/opencv.BUILD",
-    path = "/usr/local",
-)
-
-# my opencv
-new_local_repository(
-    name = "myopencv",
-    build_file = "utils/bazel/opencvOLD.BUILD",
-    path = "/usr/local",
+    path = "/usr",
 )
 
 # Qt5

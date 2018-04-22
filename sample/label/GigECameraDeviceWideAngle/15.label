@@ -1,0 +1,67 @@
+camera_name: "GigECameraDeviceWideAngle"
+object {
+  id: "car:89"
+  type: CAR
+  x: 1631
+  y: 613
+  width: 178
+  height: 70
+}
+object {
+  id: "car:90"
+  type: CAR
+  x: 797
+  y: 604
+  width: 60
+  height: 50
+}
+object {
+  id: "car:91"
+  type: CAR
+  x: 968
+  y: 601
+  width: 55
+  height: 46
+}
+object {
+  id: "car:92"
+  type: CAR
+  x: 1769
+  y: 612
+  width: 151
+  height: 72
+}
+object {
+  id: "car:97"
+  type: CAR
+  x: 969
+  y: 597
+  width: 44
+  height: 39
+}
+object {
+  id: "pedestrian:59"
+  type: PEDESTRIAN
+  x: 576
+  y: 614
+  width: 37
+  height: 99
+}
+object {
+  id: "pedestrian:60"
+  type: PEDESTRIAN
+  x: 639
+  y: 621
+  width: 26
+  height: 54
+}
+object {
+  id: "pedestrian:64"
+  type: PEDESTRIAN
+  x: 784
+  y: 598
+  width: 12
+  height: 35
+}
+trigger_timestamp: 0
+exposure_timestamp: 0
