@@ -5,6 +5,8 @@
 #include<vector>
 #include<cmath>
 #include<string>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
 #include "homework6/simulation/vehicle_agent.h"
 #include "common/proto/agent_status.pb.h"
@@ -12,6 +14,7 @@
 #include "common/proto/vehicle_status.pb.h"
 #include "common/utils/math/math_utils.h"
 #include "common/utils/file/file.h"
+#include "common/proto/vehicle_params.pb.h"
 #include "homework6/simulation/vehicle_agent_factory.h"
 
 #include "FindRoute.h"
@@ -26,15 +29,25 @@ public:
 	virtual void Initialize(const interface::agent::AgentStatus& agent_status) {
 	  string originmap=fileprefix+"homework6/map/grid2/map_proto.txt";
 	  string processedmap=fileprefix+"homework6/agents/myagent/mymap/new_map_proto.txt";
+	  string vehicleparamstr=fileprefix+"common/data/vehicle_params/vehicle_params.txt";
 	  //hongfz16::GetPredSucc(originmap,processedmap);
+	  CHECK(file::ReadFileToProto(vehicleparamstr, &vehicle_params));
+
 	  const interface::geometry::Point3D endp=agent_status.route_status().destination();
 	  const interface::geometry::Vector3d startp=agent_status.vehicle_status().position();
 	  hongfz16::FindRoute(processedmap,startp,endp,route);
-	  nextdest=1;
+	  nextdest=0;
 	  totaldests=route.route_point_size();
 	  old_agent_status.CopyFrom(agent_status);
 	  veld=0;
 	  accd=0;
+	  steerd=0;
+	  last_steer_command=pair<double,double>(0.,0.);
+	  for(int i=0;i<totaldests-1;++i)
+	  {
+	  	//cout<<route.route_point(i).x()<<" \t "<<route.route_point(i).y()<<endl;
+	  	//cout<<std::sqrt(math::Sqr(route.route_point(i+1).x()-route.route_point(i).x())+math::Sqr(route.route_point(i+1).y()-route.route_point(i).y()))<<endl;
+	  }
 
 	  cout<<"Finish Init!"<<endl;
 	}
@@ -46,11 +59,17 @@ public:
 	  if(finish)
 	  	return command;
 
-	  if(ReachNextDest(agent_status) && nextdest<totaldests)
+	  if(nextdest+1<=totaldests && ReachNextDest(agent_status))
 	  {
-	  	++nextdest;
+	  	nextdest+=1;
 	  	cout<<"nextdest"<<endl;
 	  }
+
+	  pair<double,double> tempcommand=PIDControlsteer(agent_status);
+	  last_steer_command=tempcommand;
+	  command.set_steering_angle(last_steer_command.first);
+	  command.set_steering_rate(last_steer_command.second);
+	  //cout<<last_steer_command.first*180./PI<<endl;
 	  
 	  if(!start_pulling_ && !velocity_reached_threshold_ && CalcVelocity(agent_status.vehicle_status().velocity())>=5.0)
 	  {
@@ -76,7 +95,7 @@ public:
 	  if(velocity_reached_threshold_)
 	  {
 	  	double ratio=PIDControlVel(agent_status);
-	  	cout<<ratio<<endl;
+	  	//cout<<ratio<<endl;
 	  	if(ratio<0)
 	  		command.set_brake_ratio(-ratio);
 	  	else
@@ -88,7 +107,7 @@ public:
 	  	if(CalcVelocity(agent_status.vehicle_status().velocity())<TH)
 	  		finish=true;
 	  	double ratio=PIDControlAcc(agent_status);
-	  	cout<<ratio<<endl;
+	  	//cout<<ratio<<endl;
 	  	if(ratio<0)
 	  		command.set_brake_ratio(-ratio);
 	  	else
@@ -99,7 +118,7 @@ public:
 	  {
 	  	desired_acc=comfort_acc;
 	  	double ratio=PIDControlAcc(agent_status);
-	  	cout<<ratio<<endl;
+	  	//cout<<ratio<<endl;
 	  	if(ratio<0)
 	  		command.set_brake_ratio(-ratio);
 	  	else
@@ -140,7 +159,11 @@ public:
 	bool ReachNextDest(const interface::agent::AgentStatus& agent_status)
 	{
 		double dist=CalcDist3n2(agent_status.vehicle_status().position(),route.route_point(nextdest));
-		if(dist<TH)
+		//cout<<dist<<endl;
+		//dist=abs(agent_status.vehicle_status().position().x()-route.route_point(nextdest).x());
+		//cout<<agent_status.vehicle_status().position().y()-route.route_point(nextdest).y()<<endl;
+		//cout<<dist<<endl;
+		if(dist<1)
 			return true;
 		return false;
 	}
@@ -184,6 +207,127 @@ public:
 		return pid;
 	}
 
+	double CalcRho(double x1,double x2,double y1,double y2)
+	{
+		return 2*abs(x1*y2-x2*y1)/std::sqrt((x1*x1+y1*y1)*(x2*x2+y2*y2)*((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)));
+	}
+
+	double CalcDist2D(double x1,double y1)
+	{
+		return std::sqrt(math::Sqr(x1)+math::Sqr(y1));
+	}
+
+	double CalcAngle(double x1,double x2,double y1,double y2)
+	{
+		return std::acos((x1*x2+y1*y2)/(CalcDist2D(x1,y1)*CalcDist2D(x2,y2)));
+	}
+
+	pair<double,double> PIDControlsteer(const interface::agent::AgentStatus& agent_status)
+	{
+		if(nextdest>=totaldests-1)
+			return pair<double,double>(0,0);
+		double p=10;
+		double i=2;
+		double d=0;
+		interface::geometry::Vector3d velocity;
+		velocity.CopyFrom(agent_status.vehicle_status().velocity());
+		interface::geometry::Point2D targetvec;
+		targetvec.set_x(route.route_point(nextdest).x()-agent_status.vehicle_status().position().x());
+		targetvec.set_y(route.route_point(nextdest).y()-agent_status.vehicle_status().position().y());
+		double delta=CalcAngle(velocity.x(),targetvec.x(),velocity.y(),targetvec.y());
+
+		//cout<<delta<<endl;
+
+		interface::geometry::Vector3d pa,po;
+		interface::geometry::Point3D pb;
+		po.CopyFrom(agent_status.vehicle_status().position());
+		pa.set_x(route.route_point(nextdest).x());
+		pa.set_y(route.route_point(nextdest).y());
+		pa.set_z(0);
+		pb.set_x(route.route_point(nextdest+1).x());
+		pb.set_y(route.route_point(nextdest+1).y());
+		pb.set_z(0);
+		double ax=agent_status.vehicle_status().velocity().x();
+		double ay=agent_status.vehicle_status().velocity().y();
+		double bx=pa.x()-po.x();
+		double by=pa.y()-po.y();
+		double cross_result=ax*by-ay*bx;
+		if(cross_result<0)
+			delta=-delta;
+
+		//cout<<last_steer_command.first<<endl;
+		if(isnan(last_steer_delta))
+			last_steer_delta=0;
+		if(isnan(steerd))
+			steerd=0;
+
+		double angle=p*delta+i*(last_steer_delta-delta)+d*(steerd+=delta);
+		
+		last_steer_delta=delta;
+		//cout<<angle<<endl;
+		//cout<<angle*180/PI<<endl;
+		return pair<double,double>(angle,0);
+	}
+
+	pair<double,double> Controlsteer(const interface::agent::AgentStatus& agent_status)
+	{
+		if(nextdest>=totaldests-1)
+			return last_steer_command;
+		interface::geometry::Vector3d pa,po;
+		interface::geometry::Point3D pb;
+		po.CopyFrom(agent_status.vehicle_status().position());
+		pa.set_x(route.route_point(nextdest).x());
+		pa.set_y(route.route_point(nextdest).y());
+		pa.set_z(0);
+		pb.set_x(route.route_point(nextdest+1).x());
+		pb.set_y(route.route_point(nextdest+1).y());
+		pb.set_z(0);
+		
+		double ax=agent_status.vehicle_status().velocity().x();
+		double ay=agent_status.vehicle_status().velocity().y();
+		double bx=pa.x()-po.x();
+		double by=pa.y()-po.y();
+		double cross_result=ax*by-ay*bx;
+
+		Eigen::Matrix3d rotation;
+		Eigen::Quaterniond quater;
+		quater.x()=agent_status.vehicle_status().orientation().x();
+		quater.y()=agent_status.vehicle_status().orientation().y();
+		quater.z()=agent_status.vehicle_status().orientation().z();
+		quater.w()=agent_status.vehicle_status().orientation().w();
+		rotation=quater.matrix();
+		Eigen::Vector3d va,vb,vo;
+		va(0)=pa.x();va(1)=pa.y();va(2)=pa.z();
+		vb(0)=pb.x();vb(1)=pb.y();vb(2)=pb.z();
+		vo(0)=po.x();vo(1)=po.y();vo(2)=po.z();
+		va=rotation*va;
+		vb=rotation*vb;
+		vo=rotation*vo;
+		pa.set_x(va(0)-vo(0));pa.set_y(va(1)-vo(1));pa.set_z(va(2)-vo(2));
+		pb.set_x(vb(0)-vo(0));pb.set_y(vb(1)-vo(1));pb.set_z(vb(2)-vo(2));
+		
+		//cout<<"----"<<endl;
+		//cout<<va-vo<<endl;
+		//cout<<vb-vo<<endl;
+
+		double I=1.5;
+		double K=0.2;
+		double rho=CalcRho(pa.x(),pb.x(),pa.y(),pb.y());
+		
+		//double rho2=2*(math::Sqr(pa.y())+math::Sqr(pb.y()))/(math::Sqr(pa.x())*pa.y()+math::Sqr(pb.x())*pb.y()+math::Sqr(pa.x())*pa.x()+math::Sqr(pb.x())*pb.x());
+		//if(rho-rho2<TH)
+		//	cout<<"True"<<endl;
+
+		double angle=rho*I*(vehicle_params.wheelbase()+K*math::Sqr(CalcVelocity(agent_status.vehicle_status().velocity())));
+
+		if(cross_result<0)
+			angle=-angle;
+
+		cout<<180/PI*angle<<endl;
+
+		return pair<double,double>(angle,0.);
+	}
+
 	// Whether vehicle's current position reaches the destination
 	bool start_pulling_ = false;
 	// Whether vehicle's current velocity reaches 5 m/s
@@ -205,10 +349,18 @@ public:
 
 	double veld;
 	double accd;
+	double steerd;
 
 	interface::agent::AgentStatus old_agent_status;
 
 	double comfort_acc=1.5;
 	double TH=1e-3;
+
+	pair<double,double> last_steer_command;
+	double last_steer_delta;
+
+	double PI=3.141592653;
+
+	interface::vehicle::VehicleParams vehicle_params;
 };
 }

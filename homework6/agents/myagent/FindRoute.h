@@ -6,6 +6,7 @@
 #include<vector>
 #include<stack>
 #include<queue>
+#include<cmath>
 #include"common/proto/route.pb.h"
 #include"common/proto/map.pb.h"
 #include"common/utils/file/file.h"
@@ -86,6 +87,11 @@ interface::map::Lane FindCorrectLane(int id,const interface::map::Map& map)
 	}
 }
 
+double CalcDistPoint2d(interface::geometry::Point2D& lp,interface::geometry::Point2D& rp)
+{
+	return std::sqrt((lp.x()-rp.x())*(lp.x()-rp.x())+(lp.y()-rp.y())*(lp.y()-rp.y()));
+}
+
 //inputfilename is the proto file containing starting and ending point
 void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& start3d, const interface::geometry::Point3D& ene3d, interface::route::Route& route)
 {
@@ -159,6 +165,9 @@ void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& s
 	}
 
 	//Add route points(lanes' central line points) to route
+
+	interface::geometry::Point2D last_add_route_point;
+	bool updated=false;
 	for(int i=routeid.size()-1;i>=0;--i)
 	{
 		interface::map::Lane templane=FindCorrectLane(routeid[i],mapdata);
@@ -240,6 +249,13 @@ void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& s
 			interface::geometry::Point2D p2d;
 			p2d.set_x(point.x());
 			p2d.set_y(point.y());
+			if(updated)
+			{
+				if(CalcDistPoint2d(last_add_route_point,p2d)<2)
+					continue;
+			}
+			last_add_route_point.CopyFrom(p2d);
+			updated=true;
 			auto* newroutepoint=route.add_route_point();
 			newroutepoint->CopyFrom(p2d);
 		}

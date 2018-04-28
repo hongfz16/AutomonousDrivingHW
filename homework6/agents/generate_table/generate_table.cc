@@ -77,34 +77,30 @@ int main()
   	ratio+=0.1;
   	//ratio=1;
   	interface::control::ControlCommand command1,command2;
-  	command1.set_throttle_ratio(ratio);
-  	command1.set_brake_ratio(0);
-  	//command2.set_brake_ratio(ratio);
+  	//command1.set_throttle_ratio(ratio);
+  	//command1.set_brake_ratio(0);
+  	command2.set_brake_ratio(ratio);
+  	command2.set_throttle_ratio(0);
   	cv=0;
-  	for(int j=0;j<30;++j)
+  	for(int j=0;j<300;++j)
   	{
   		cv+=0.1;
-			hongfz16::init_agent_status(agent_status);
-			hongfz16::set_v(agent_status,cv);
-			//hongfz16::set_a(agent_status,ca);
-			std::unique_ptr<vehicle_status_model::VehicleStatusModelSolver> solver =
-			    vehicle_status_model::CreateVehicleStatusModelSolver(vehicle_params_);
-			solver->Initialize(0,agent_status.vehicle_status());
-			interface::agent::VehicleStatus vs=solver->UpdateVehicleStatus(0.01,command1);
-			vs=solver->UpdateVehicleStatus(0.02,command1);
-			vs=solver->UpdateVehicleStatus(0.03,command1);
-			vs=solver->UpdateVehicleStatus(0.04,command1);
-			vs=solver->UpdateVehicleStatus(0.05,command1);
-			vs=solver->UpdateVehicleStatus(0.06,command1);
-			vs=solver->UpdateVehicleStatus(0.07,command1);
-			vs=solver->UpdateVehicleStatus(0.08,command1);
-			vs=solver->UpdateVehicleStatus(0.09,command1);
-			vs=solver->UpdateVehicleStatus(0.10,command1);
-			fout1<<cv<<"\t"<<ratio<<"\t"<<vs.acceleration_vcs().x()<<endl;
-			//solver->Initialize(0,agent_status.vehicle_status());
-			//vs=solver->UpdateVehicleStatus(0,command2);
-			//fout2<<cv<<" "<<ca<<" "<<ratio<<" "<<vs.acceleration_vcs().x()<<endl;
+		hongfz16::init_agent_status(agent_status);
+		hongfz16::set_v(agent_status,cv);
+		//hongfz16::set_a(agent_status,ca);
+		std::unique_ptr<vehicle_status_model::VehicleStatusModelSolver> solver =
+		    vehicle_status_model::CreateVehicleStatusModelSolver(vehicle_params_);
+		solver->Initialize(0,agent_status.vehicle_status());
+		interface::agent::VehicleStatus vs=solver->UpdateVehicleStatus(0.01,command2);
+		for(int i=2;i<30;++i)
+		{
+			vs=solver->UpdateVehicleStatus(0.01*i,command2);
 		}
+		fout2<<cv<<"\t"<<ratio<<"\t"<<vs.acceleration_vcs().x()<<endl;
+		//solver->Initialize(0,agent_status.vehicle_status());
+		//vs=solver->UpdateVehicleStatus(0,command2);
+		//fout2<<cv<<" "<<ca<<" "<<ratio<<" "<<vs.acceleration_vcs().x()<<endl;
+	}
   }
 
   fout1.close();

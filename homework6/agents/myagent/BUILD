@@ -12,6 +12,7 @@ cc_library(
         "@glog",
         ":GetPredSucc",
         ":FindRoute",
+        "@eigen//:eigen",
     ],
 )
 
