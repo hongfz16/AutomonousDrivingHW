@@ -43,18 +43,23 @@ public:
 	  accd=0;
 	  steerd=0;
 	  last_steer_command=pair<double,double>(0.,0.);
-	  for(int i=0;i<totaldests-1;++i)
-	  {
-	  	//cout<<route.route_point(i).x()<<" \t "<<route.route_point(i).y()<<endl;
-	  	//cout<<std::sqrt(math::Sqr(route.route_point(i+1).x()-route.route_point(i).x())+math::Sqr(route.route_point(i+1).y()-route.route_point(i).y()))<<endl;
-	  }
-
+	  // for(int i=0;i<totaldests-1;++i)
+	  // {
+	  // 	//cout<<route.route_point(i).x()<<" \t "<<route.route_point(i).y()<<endl;
+	  // 	//cout<<std::sqrt(math::Sqr(route.route_point(i+1).x()-route.route_point(i).x())+math::Sqr(route.route_point(i+1).y()-route.route_point(i).y()))<<endl;
+	  // }
+	  //string velocity_log_file=fileprefix+"homework6/result/velocity_log/velocity_log_config_3.txt";
+	  //fout.open(velocity_log_file);
 	  cout<<"Finish Init!"<<endl;
 	}
 
 	virtual interface::control::ControlCommand RunOneIteration(
 	    const interface::agent::AgentStatus& agent_status) {
 	  interface::control::ControlCommand command;
+
+	  //fout<<agent_status.vehicle_status().velocity().x()<<" "
+	  //<<agent_status.vehicle_status().velocity().y()<<" "
+	  //<<agent_status.vehicle_status().velocity().z()<<endl;
 
 	  if(finish)
 	  	return command;
@@ -336,8 +341,6 @@ public:
 	bool need_acc_ = true;
 
 	bool finish=false;
-
-	string fileprefix="/home/hongfz/Documents/Learn/AutomonousDrivingHW/";
 	
 	interface::route::Route route;
 	
@@ -362,5 +365,10 @@ public:
 	double PI=3.141592653;
 
 	interface::vehicle::VehicleParams vehicle_params;
+
+	//ofstream fout;
+
+	//PLEASE CHANGE THE FILEPREFIX TO YOUR WORKING PATH BEFORE YOU RUN THIS CODE
+	string fileprefix="/home/hongfz/Documents/Learn/AutomonousDrivingHW/";
 };
 }
