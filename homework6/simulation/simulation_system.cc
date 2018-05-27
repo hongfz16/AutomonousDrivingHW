@@ -5,8 +5,93 @@
 #include "common/proto/simulation.pb.h"
 #include "common/utils/common/mutex.h"
 
+#include "homework6/simulation/my_agent_param.h"
+
 #include <glog/logging.h>
 #include "homework6/map/map_lib.h"
+
+double my_agent_pid[3]={10,2,0};
+
+double err=0;
+double best_err=0;
+bool inited=false;
+
+double dpid[3]={1.0,1.0,1.0};
+
+double tol=0.001;
+
+int curri=0;
+
+bool isbeforefirstif=true;
+bool isinfirstif=false;
+bool isbeforesecondif=false;
+
+void updateparam()
+{
+  if(!inited)
+  {
+    best_err=err;
+    inited=true;
+    return;
+  }
+  if(dp+di+dd<tol)
+  {
+    cout<<"Done!"<<endl;
+    cout<<"P: "<<my_agent_pid[0]<<endl;
+    cout<<"I: "<<my_agent_pid[1]<<endl;
+    cout<<"D: "<<my_agent_pid[2]<<endl;
+    int temp;
+    cin>>temp;
+  }
+  cout<<"Current Error: "<<err<<endl;
+  if(isbeforefirstif)
+  {
+    my_agent_pid[curri]+=dpid[curri];
+    isbeforefirstif=false;
+    isinfirstif=true;
+    return;
+  }
+  if(isinfirstif)
+  {
+    if(err<best_err)
+    {
+      best_err=err;
+      dpid[curri]*=1.1;
+      curri=(curri+1)%3;
+      isbeforefirstif=true;
+      isinfirstif=false;
+      return;
+    }
+    else
+    {
+      my_agent_pid[curri]-=2*dpid[curri];
+      isbeforesecondif=true;
+      isinfirstif=false;
+      return;
+    }
+  }
+  if(isbeforesecondif)
+  {
+    if(err<best_err)
+    {
+      best_err=err;
+      dpid[curri]*=1.1;
+      curri=(curri+1)%3;
+      isbeforesecondif=false;
+      isbeforefirstif=true;
+      return;
+    }
+    else
+    {
+      my_agent_pid[curri]+=dpid[curri];
+      dpid[curri]*=0.9;
+      curri=(curri+1)%3;
+      isbeforesecondif=false;
+      isbeforefirstif=true;
+      return;
+    }
+  }
+}
 
 namespace simulation {
 
@@ -56,6 +141,7 @@ void SimulationSystem::Start() {
     agent_status_map_ = simulation_world_->GetAgentStatusMap();
     simulation_time_ = simulation_world_->GetSimulationTime();
   }
+  updateparam();
 }
 
 interface::simulation::SimulationSystemData SimulationSystem::FetchData() {

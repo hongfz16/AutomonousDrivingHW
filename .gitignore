@@ -4,3 +4,5 @@ bazel-*
 cmake-build-debug
 CMakeLists.txt
 *.mkv
+
+.DS_Store

@@ -17,6 +17,8 @@
 #include "common/proto/vehicle_params.pb.h"
 #include "homework6/simulation/vehicle_agent_factory.h"
 
+#include "homework6/simulation/my_agent_param.h"
+
 #include "FindRoute.h"
 #include "GetPredSucc.h"
 
@@ -43,6 +45,10 @@ public:
 	  accd=0;
 	  steerd=0;
 	  last_steer_command=pair<double,double>(0.,0.);
+	  nearest1=0;
+	  nearest2=1;
+	  nearest1dist=CalcDist3n2(startp,route.route_point(0));
+	  nearest2dist=CalcDist3n2(startp,route.route_point(1));
 	  // for(int i=0;i<totaldests-1;++i)
 	  // {
 	  // 	//cout<<route.route_point(i).x()<<" \t "<<route.route_point(i).y()<<endl;
@@ -99,6 +105,7 @@ public:
 
 	  if(velocity_reached_threshold_)
 	  {
+	  	err+=UpdatenGetErr(agent_status);
 	  	double ratio=PIDControlVel(agent_status);
 	  	//cout<<ratio<<endl;
 	  	if(ratio<0)
@@ -159,6 +166,30 @@ public:
 										 const interface::geometry::Point2D& dest)
 	{
 		return std::sqrt(math::Sqr(position.x()-dest.x())+math::Sqr(position.y()-dest.y()));
+	}
+
+	double UpdatenGetErr(const interface::agent::AgentStatus& agent_status)
+	{
+		for(int i=nearest2+1;i<route.route_point_size();++i)
+		{
+			double dist=CalcDist3n2(agent_status.vehicle_status().position(),route.route_point(i));
+			if(dist<nearest2)
+			{
+				nearest1=nearest2;
+				nearest1dist=nearest2dist;
+				nearest2=i;
+				nearest2dist=dist;
+				break;
+			}
+		}
+		double x0=agent_status.vehicle_status().position().x();
+		double y0=agent_status.vehicle_status().position().y();
+		double x1=route.route_point(nearest1).x();
+		double y1=route.route_point(nearest1).y();
+		double x2=route.route_point(nearest2).x();
+		double y2=route.route_point(nearest2).y();
+		double lerr=abs(((y1-y2)*x0+(x2-x1)*y0+x1*y2-x2*y1)/std::sqrt(math::Sqr(y1-y2)+math::Sqr(x2-x1)));
+		return lerr;
 	}
 
 	bool ReachNextDest(const interface::agent::AgentStatus& agent_status)
@@ -231,9 +262,14 @@ public:
 	{
 		if(nextdest>=totaldests-1)
 			return pair<double,double>(0,0);
-		double p=10;
-		double i=2;
-		double d=0;
+		// double p=10;
+		// double i=2;
+		// double d=0;
+		
+		double p=my_agent_pid[0];
+		double i=my_agent_pid[1];
+		double d=my_agent_pid[2];
+
 		interface::geometry::Vector3d velocity;
 		velocity.CopyFrom(agent_status.vehicle_status().velocity());
 		interface::geometry::Point2D targetvec;
@@ -343,6 +379,10 @@ public:
 	bool finish=false;
 	
 	interface::route::Route route;
+	int nearest1;
+	int nearest2;
+	double nearest1dist;
+	double nearest2dist;
 	
 	int nextdest;
 	int totaldests;

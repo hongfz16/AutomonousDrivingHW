@@ -18,8 +18,11 @@ class SimulationMainWindow : public MainWindow {
     CHECK(file::ReadTextFileToProto(FLAGS_route_file_path, &simulation_config));
     simulation_system_ = std::make_unique<simulation::SimulationSystem>(simulation_config);
     simulation_system_thread_ = std::thread([this]() {
-      simulation_system_->Initialize();
-      simulation_system_->Start();
+        while(true)
+        {
+          simulation_system_->Initialize();
+          simulation_system_->Start();   
+        }
     });
     SetupMenu();
   }
