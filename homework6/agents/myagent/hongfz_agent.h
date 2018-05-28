@@ -49,6 +49,7 @@ public:
 	  nearest2=1;
 	  nearest1dist=CalcDist3n2(startp,route.route_point(0));
 	  nearest2dist=CalcDist3n2(startp,route.route_point(1));
+	  err=0;
 	  // for(int i=0;i<totaldests-1;++i)
 	  // {
 	  // 	//cout<<route.route_point(i).x()<<" \t "<<route.route_point(i).y()<<endl;
@@ -56,7 +57,7 @@ public:
 	  // }
 	  //string velocity_log_file=fileprefix+"homework6/result/velocity_log/velocity_log_config_3.txt";
 	  //fout.open(velocity_log_file);
-	  cout<<"Finish Init!"<<endl;
+	  //cout<<"Finish Init!"<<endl;
 	}
 
 	virtual interface::control::ControlCommand RunOneIteration(
@@ -67,13 +68,17 @@ public:
 	  //<<agent_status.vehicle_status().velocity().y()<<" "
 	  //<<agent_status.vehicle_status().velocity().z()<<endl;
 
+	  currerr=UpdatenGetErr(agent_status);
+	  //cout<<currerr<<endl;
+	  err+=currerr;
+
 	  if(finish)
 	  	return command;
 
 	  if(nextdest+1<=totaldests && ReachNextDest(agent_status))
 	  {
 	  	nextdest+=1;
-	  	cout<<"nextdest"<<endl;
+	  	//cout<<"nextdest"<<endl;
 	  }
 
 	  pair<double,double> tempcommand=PIDControlsteer(agent_status);
@@ -82,6 +87,7 @@ public:
 	  command.set_steering_rate(last_steer_command.second);
 	  //cout<<last_steer_command.first*180./PI<<endl;
 	  
+
 	  if(!start_pulling_ && !velocity_reached_threshold_ && CalcVelocity(agent_status.vehicle_status().velocity())>=5.0)
 	  {
 	  	velocity_reached_threshold_=true;
@@ -90,7 +96,7 @@ public:
 	  	desired_acc=0;
 	  	desired_velocity=5.0;
 
-	  	cout<<"Reach 5m/s"<<endl;
+	  	//cout<<"Reach 5m/s"<<endl;
 	  }
 
 	  if(!start_pulling_ && ReachPulling(agent_status))
@@ -100,12 +106,11 @@ public:
 	  	velocity_reached_threshold_=false;
 	  	desired_acc=-comfort_acc;
 
-	  	cout<<"Start pulling"<<endl;
+	  	//cout<<"Start pulling"<<endl;
 	  }
 
 	  if(velocity_reached_threshold_)
 	  {
-	  	err+=UpdatenGetErr(agent_status);
 	  	double ratio=PIDControlVel(agent_status);
 	  	//cout<<ratio<<endl;
 	  	if(ratio<0)
@@ -188,7 +193,7 @@ public:
 		double y1=route.route_point(nearest1).y();
 		double x2=route.route_point(nearest2).x();
 		double y2=route.route_point(nearest2).y();
-		double lerr=abs(((y1-y2)*x0+(x2-x1)*y0+x1*y2-x2*y1)/std::sqrt(math::Sqr(y1-y2)+math::Sqr(x2-x1)));
+		double lerr=(((y1-y2)*x0+(x2-x1)*y0+x1*y2-x2*y1)/std::sqrt(math::Sqr(y1-y2)+math::Sqr(x2-x1)));
 		return lerr;
 	}
 
@@ -270,33 +275,37 @@ public:
 		double i=my_agent_pid[1];
 		double d=my_agent_pid[2];
 
-		interface::geometry::Vector3d velocity;
-		velocity.CopyFrom(agent_status.vehicle_status().velocity());
-		interface::geometry::Point2D targetvec;
-		targetvec.set_x(route.route_point(nextdest).x()-agent_status.vehicle_status().position().x());
-		targetvec.set_y(route.route_point(nextdest).y()-agent_status.vehicle_status().position().y());
-		double delta=CalcAngle(velocity.x(),targetvec.x(),velocity.y(),targetvec.y());
+		//->>>> Using angle as control parameter
+		// interface::geometry::Vector3d velocity;
+		// velocity.CopyFrom(agent_status.vehicle_status().velocity());
+		// interface::geometry::Point2D targetvec;
+		// targetvec.set_x(route.route_point(nextdest).x()-agent_status.vehicle_status().position().x());
+		// targetvec.set_y(route.route_point(nextdest).y()-agent_status.vehicle_status().position().y());
+		// double delta=CalcAngle(velocity.x(),targetvec.x(),velocity.y(),targetvec.y());
 
-		//cout<<delta<<endl;
+		// //cout<<delta<<endl;
 
-		interface::geometry::Vector3d pa,po;
-		interface::geometry::Point3D pb;
-		po.CopyFrom(agent_status.vehicle_status().position());
-		pa.set_x(route.route_point(nextdest).x());
-		pa.set_y(route.route_point(nextdest).y());
-		pa.set_z(0);
-		pb.set_x(route.route_point(nextdest+1).x());
-		pb.set_y(route.route_point(nextdest+1).y());
-		pb.set_z(0);
-		double ax=agent_status.vehicle_status().velocity().x();
-		double ay=agent_status.vehicle_status().velocity().y();
-		double bx=pa.x()-po.x();
-		double by=pa.y()-po.y();
-		double cross_result=ax*by-ay*bx;
-		if(cross_result<0)
-			delta=-delta;
+		double delta=currerr;
+
+		// interface::geometry::Vector3d pa,po;
+		// interface::geometry::Point3D pb;
+		// po.CopyFrom(agent_status.vehicle_status().position());
+		// pa.set_x(route.route_point(nextdest).x());
+		// pa.set_y(route.route_point(nextdest).y());
+		// pa.set_z(0);
+		// pb.set_x(route.route_point(nextdest+1).x());
+		// pb.set_y(route.route_point(nextdest+1).y());
+		// pb.set_z(0);
+		// double ax=agent_status.vehicle_status().velocity().x();
+		// double ay=agent_status.vehicle_status().velocity().y();
+		// double bx=pa.x()-po.x();
+		// double by=pa.y()-po.y();
+		// double cross_result=ax*by-ay*bx;
+		// if(cross_result<0)
+		// 	delta=-delta;
 
 		//cout<<last_steer_command.first<<endl;
+
 		if(isnan(last_steer_delta))
 			last_steer_delta=0;
 		if(isnan(steerd))
@@ -383,6 +392,7 @@ public:
 	int nearest2;
 	double nearest1dist;
 	double nearest2dist;
+	double currerr;
 	
 	int nextdest;
 	int totaldests;

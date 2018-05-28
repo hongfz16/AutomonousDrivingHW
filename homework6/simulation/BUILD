@@ -1,6 +1,13 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
+    name="my_agent_param",
+    hdrs=["my_agent_param.h"],
+    srcs=["my_agent_param.cc"],
+    deps=[],
+    )
+
+cc_library(
     name = "vehicle_agent",
     hdrs = ["vehicle_agent.h"],
     deps = [

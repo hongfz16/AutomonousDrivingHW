@@ -4,4 +4,6 @@
 extern double my_agent_pid[3];
 extern double err;
 
+void updateparam();
+
 #endif

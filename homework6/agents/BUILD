@@ -8,7 +8,7 @@ cc_library(
         "//homework6/agents/sample:sample_agent",
         "//homework6/simulation:vehicle_agent_factory",
         "//homework6/agents/myagent:hongfz_agent",
-        "//homework6/simulation:simulation_system",
+        "//homework6/simulation:my_agent_param",
     ],
     alwayslink = 1,
 )
