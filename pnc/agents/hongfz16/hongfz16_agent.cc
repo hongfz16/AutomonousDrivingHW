@@ -82,11 +82,15 @@ inline void hongfz16::SimpleVehicleAgent::new_route_init(const interface::agent:
 
 inline void hongfz16::SimpleVehicleAgent::init_param(const interface::agent::AgentStatus& agent_status)
 {
-	car_info.refer_point_id=0;
+	car_info.refer_point_id=1;
+
 	car_info.last_err.theta_err=0;
 	car_info.last_err.ct_err=0;
+	
 	car_info.int_err.theta_err=0;
 	car_info.int_err.ct_err=0;
+
+	car_info.last_delta_speed=0;
 }
 
 inline void hongfz16::SimpleVehicleAgent::my_init(const interface::agent::AgentStatus& agent_status)
@@ -127,7 +131,7 @@ inline Command hongfz16::SimpleVehicleAgent::control_vehicle(const interface::ag
 	return c;
 }
 
-double hongfz16::SimpleVehicleAgent::path_tracking(const interface::agent::AgentStatus& agent_status)
+inline double hongfz16::SimpleVehicleAgent::path_tracking(const interface::agent::AgentStatus& agent_status)
 {
 	SpeedInfo sinfo=get_curr_speed(agent_status);
 	Err curr_err=get_err(agent_status,sinfo);
@@ -152,12 +156,25 @@ double hongfz16::SimpleVehicleAgent::path_tracking(const interface::agent::Agent
 		+ car_param.ct_err_pid[2] * delta_ct_err);
 }
 
-double hongfz16::SimpleVehicleAgent::speed_control(const interface::agent::AgentStatus& agent_status)
+inline double hongfz16::SimpleVehicleAgent::speed_control(const interface::agent::AgentStatus& agent_status)
+{
+	speed_planning(agent_status);
+	SpeedInfo sinfo=get_curr_speed(agent_status);
+	double target_speed=car_info.curr_route.routes[car_info.refer_point_id].second;
+	double prop=sinfo.speed-target_speed;
+	double delt=prop-car_info.last_delta_speed;
+	if(car_info.last_delta_speed==0)
+		delt=0;
+	car_info.last_delta_speed=prop;
+	return car_param.speed_pid[0] * prop + car_param.speed_pid[1] * delt;
+}
+
+inline void speed_planning(const interface::agent::AgentStatus& agent_status)
 {
 
 }
 
-double hongfz16::SimpleVehicleAgent::get_preview_length(double cspeed)
+inline double hongfz16::SimpleVehicleAgent::get_preview_length(double cspeed)
 {
 	if(cspeed<car_param.preview_length_th_min)
 		return car_param.preview_length_min;
@@ -168,7 +185,7 @@ double hongfz16::SimpleVehicleAgent::get_preview_length(double cspeed)
 						(car_param.preview_length_th_max-car_param.preview_length_th_min)+car_param.preview_length_min;	
 }
 
-Err hongfz16::SimpleVehicleAgent::get_err(const interface::agent::AgentStatus& agent_status, const SpeedInfo& sinfo)
+inline Err hongfz16::SimpleVehicleAgent::get_err(const interface::agent::AgentStatus& agent_status, const SpeedInfo& sinfo)
 {
 	Err err;
 	Point2d preview_point;
@@ -204,10 +221,11 @@ inline void update_refer_point(const interface::AgentStatus& agent_status)
 	Point2d position;
 	position.set_x(agent_status.vehicle_status().position().x());
 	position.set_y(agent_status.vehicle_status().position().y());
-	double currdist=calc_dist(car_info.curr_route.routes[car_info.refer_point_id].first,position);
+	double currdist=0;
 	for(int i=car_info.refer_point_id+1;i<car_info.curr_route.routes.size();++i)
 	{
 		double tempdist=calc_dist(car_info.curr_route.routes[i].first,position);
+		currdist=calc_dist(car_info.curr_route.routes[car_info.refer_point_id-1].first,position);
 		if(tempdist<currdist)
 		{
 			currdist=tempdist;

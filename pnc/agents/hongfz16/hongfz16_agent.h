@@ -36,6 +36,7 @@ struct Params
 	double kp;
 	double theta_err_pid[3];
 	double ct_err_pid[3];
+	double speed_pd[2];
 
 	Params()
 	{
@@ -52,6 +53,9 @@ struct Params
 		ct_err_pid[0]=0;
 		ct_err_pid[1]=0;
 		ct_err_pid[2]=0;
+
+		speed_pid[0]=-1;
+		speed_pid[1]=0;
 	}
 };
 
@@ -81,6 +85,7 @@ struct CarInfo
 	Route curr_route;
 	Err last_err;
 	Err int_err;
+	double last_delta_speed;
 };
 
 class SimpleVehicleAgent : public simulation::VehicleAgent {
@@ -116,6 +121,8 @@ private:
 	inline double path_tracking(const interface::agent::AgentStatus& agent_status);
 
 	inline double speed_control(const interface::agent::AgentStatus& agent_status);
+
+	inline void speed_planning(const interface::agent::AgentStatus& agent_status);
 
 	inline double get_preview_length(double cspeed);
 
