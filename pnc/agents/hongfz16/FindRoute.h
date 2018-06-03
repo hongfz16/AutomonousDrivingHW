@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _FINDROUTE_H_
 #define _FINDROUTE_H_
 
@@ -164,10 +166,10 @@ void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& s
 			break;
 		routeid.push_back(record[last]);
 	}
-	for(int i=0;i<routeid.size();++i)
-	{
-		cout<<routeid[i]<<endl;
-	}
+	// for(int i=0;i<routeid.size();++i)
+	// {
+	// 	cout<<routeid[i]<<endl;
+	// }
 	//Add route points(lanes' central line points) to route
 
 	interface::geometry::Point2D last_add_route_point;

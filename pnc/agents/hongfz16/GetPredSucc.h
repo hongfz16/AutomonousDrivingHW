@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _GETPREDSUCC_H_
 #define _GETPREDSUCC_H_
 

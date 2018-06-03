@@ -1,10 +1,13 @@
 #pragma once
 
-#include<iostream>
-#include<fstream>
-#include<vector>
-#include<cmath>
-#include<string>
+#ifndef _HONGFZ_AGENT_
+#define _HONGFZ_AGENT_
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cmath>
+#include <string>
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
@@ -17,8 +20,10 @@
 #include "common/proto/vehicle_params.pb.h"
 #include "pnc/simulation/vehicle_agent_factory.h"
 
-#include "FindRoute.h"
-#include "GetPredSucc.h"
+using std::pair;
+using std::string;
+using std::cout;
+using std::endl;
 
 namespace hongfz16
 {
@@ -26,6 +31,8 @@ typedef interface::geometry::Point3D Point3d;
 typedef interface::geometry::Point2D Point2d;
 typedef interface::geometry::Vector3d Vector3d;
 typedef interface::control::ControlCommand Command;
+typedef interface::perception::PerceptionObstacle Obstacle;
+typedef interface::perception::PerceptionTrafficLightStatus TrafficLight;
 
 struct Params
 {
@@ -41,21 +48,21 @@ struct Params
 	Params()
 	{
 		kp=1;
-		preview_length_max=5;
-		preview_length_min=1;
+		preview_length_max=2;
+		preview_length_min=0;
 		preview_length_th_max=10;
 		preview_length_th_min=5;
 
-		theta_err_pid[0]=10;
+		theta_err_pid[0]=18;
 		theta_err_pid[1]=0;
 		theta_err_pid[2]=2;
 		
-		ct_err_pid[0]=0;
+		ct_err_pid[0]=-1;
 		ct_err_pid[1]=0;
 		ct_err_pid[2]=0;
 
-		speed_pid[0]=-1;
-		speed_pid[1]=0;
+		speed_pd[0]=-0.5;
+		speed_pd[1]=0;
 	}
 };
 
@@ -128,7 +135,9 @@ private:
 
 	inline Err get_err(const interface::agent::AgentStatus& agent_status, const SpeedInfo& sinfo);
 
-	inline void update_refer_point(const interface::AgentStatus& agent_status);
+	inline void update_refer_point(const interface::agent::AgentStatus& agent_status);
+
+	inline void register_debug_info();
 	
 private:
 	//PLEASE CHANGE THE FILEPREFIX TO YOUR WORKING PATH BEFORE YOU RUN THIS CODE
@@ -139,3 +148,5 @@ private:
 	Params car_param;
 };
 }
+
+#endif
