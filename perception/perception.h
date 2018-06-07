@@ -12,6 +12,7 @@
 #include "common/utils/common/optional.h"
 #include "homework2/pointcloud.h"
 
+
 class Perception {
  public:
   Perception() = default;

@@ -58,6 +58,8 @@ void RunPerceptionEvaluation() {
     interface::perception::PerceptionEvaluationConfig config;
     CHECK(file::ReadTextFileToProto(config_file, &config))
         << "Failed to load config file: " << config_file;
+    if (config_file != "/home/hongfz/Documents/Learn/AutomonousDrivingHW/perception/config/test.config")
+     continue;
     const std::string result_file =
         file::path::Join(FLAGS_result_folder, strings::Format("{}.result", config.scenario_name()));
     const std::string lidar_dir = config.local_data().lidar_dir();

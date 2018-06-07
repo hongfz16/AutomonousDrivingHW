@@ -3,7 +3,7 @@ agent_type: "hongfz_agent"
 route {
   start_point {
     x: 120.289
-    y: 74.675
+    y: 72.675
   }
   start_orientation {
     x: 0.0

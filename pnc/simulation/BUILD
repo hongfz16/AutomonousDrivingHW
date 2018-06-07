@@ -67,6 +67,7 @@ cc_library(
         "//common/utils/math",
         "//pnc/map:map_lib",
         "//pnc/utils:vehicle",
+        "//pnc/utils:index",
         "@com_google_protobuf//:protobuf",
         "@glog",
     ],

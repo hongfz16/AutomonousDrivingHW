@@ -11,6 +11,10 @@ cc_library(
         "//homework2:pointcloud",
         "@opencv//:core",
         "@opencv//:highgui",
+        "//perception/mpcl:sepGround",
+        "//perception/mpcl:CorrTrans",
+        "//perception/mpcl:GridUtils",
+        "//perception/SVM:svm_classifier",
     ],
 )
 
