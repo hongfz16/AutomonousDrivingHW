@@ -11,16 +11,28 @@
 #include "perception/mpcl/sepGround.h"
 #include "perception/mpcl/CorrTrans.h"
 #include "perception/mpcl/GridUtils.h"
+#include "perception/FeatureExtract/FeatureExtract.h"
+#include "perception/SVM/svm_classifier.h"
 
 using namespace std;
 
 const int n=100;
 const double height_th=0.1;
 const double range=30;
+MODEL* model = NULL;
+char modelfile[200]="/home/hongfz/Documents/Learn/AutomonousDrivingHW/perception/SVM/model";
+
+int gcount=0;
 
 interface::perception::PerceptionObstacles Perception::RunPerception(
     const PointCloud& pointcloud, const utils::Optional<cv::Mat>& image) {
+  if(model==NULL)
+    model=read_model(modelfile);
+
   interface::perception::PerceptionObstacles perception_result;
+
+  // if(gcount++!=5)
+  //   return perception_result;
 
   PointCloud mpc(pointcloud);
   remove_ground_points(mpc);
@@ -54,32 +66,24 @@ interface::perception::PerceptionObstacles Perception::RunPerception(
   }
 
   FillGrid(grid_points,points,range);
-  // RemoveNoisePoints(grid_points);
-	// for(int i=0;i<grid_points.size();++i)
-  // 	{
-  //   	for(int j=0;j<grid_points.size();++j)
-  //   	{
-  //     		cout<<grid_points[i][j].size()<<" ";
-  //   	}
-  //   cout<<endl;
-  // }
+  RemoveNoisePoints(grid_points);
   MarkGrid(grid_points,max_height,min_height,mark,height_th);
   FindConnectedBlocks(mark,blocks);
   FindObstacles(blocks,grid_points,max_height,min_height,positions);
 
-  for(int i=0;i<mark.size();++i)
-  {
-    for(int j=0;j<mark.size();++j)
-    {
-      if(mark[i][j]==1)
-        cout<<"O";
-      if(mark[i][j]==2)
-        cout<<"M";
-      else
-        cout<<" ";
-    }
-    cout<<endl;
-  }
+  // for(int i=0;i<mark.size();++i)
+  // {
+  //   for(int j=0;j<mark.size();++j)
+  //   {
+  //     if(mark[i][j]==1)
+  //       cout<<"O";
+  //     if(mark[i][j]==2)
+  //       cout<<"M";
+  //     else
+  //       cout<<" ";
+  //   }
+  //   cout<<endl;
+  // }
 
   for(int i=0;i<positions.size();++i)
   {
@@ -93,8 +97,24 @@ interface::perception::PerceptionObstacles Perception::RunPerception(
       polygon_point->set_z(z_min+lidar_point(2));
     }
     obstacle->set_height(positions[i].height);
-    obstacle->set_id(string("car_")+to_string(i));
-    obstacle->set_type(interface::perception::ObjectType::CAR);
+    string feature_str=ExtractFeature(positions[i].points);
+    char* feature_cstr=new char[feature_str.length()+1];
+    strcpy(feature_cstr, feature_str.c_str());
+    // cout<<feature_str<<endl;
+    if(Predict_CAR(feature_cstr,model)==1)
+    {
+      obstacle->set_id(string("car_")+to_string(i));
+      obstacle->set_type(interface::perception::ObjectType::CAR);
+    }
+    else
+    {
+      obstacle->set_id(string("unknown_")+to_string(i));
+      obstacle->set_type(interface::perception::ObjectType::UNKNOWN_TYPE);
+    }
+    delete [] feature_cstr;
   }
+
+  cout<<gcount++<<endl;
+
   return perception_result;
 }

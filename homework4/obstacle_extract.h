@@ -3,7 +3,7 @@
 
 #include "common/proto/object_labeling_3d.pb.h"
 #include "common/proto/perception.pb.h"
-#include "homework2/PointCloud/pointcloud.h"
+#include "homework2/pointcloud.h"
 
 #include <iostream>
 #include <vector>

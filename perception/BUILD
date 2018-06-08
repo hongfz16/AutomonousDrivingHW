@@ -15,6 +15,7 @@ cc_library(
         "//perception/mpcl:CorrTrans",
         "//perception/mpcl:GridUtils",
         "//perception/SVM:svm_classifier",
+        "//perception/FeatureExtract:FeatureExtract",
     ],
 )
 

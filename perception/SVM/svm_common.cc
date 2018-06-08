@@ -22,6 +22,12 @@
 long   verbosity;              /* verbosity level (0-4) */
 long   kernel_cache_statistic;
 
+double custom_kernel(KERNEL_PARM *kernel_parm, SVECTOR *a, SVECTOR *b) 
+     /* plug in you favorite kernel */                          
+{
+  return((double)(1.0)); 
+}
+
 double classify_example(MODEL *model, DOC *ex) 
      /* classifies one example */
 {
@@ -831,7 +837,6 @@ int parse_document(char *line, WORD *words, double *label,
     }
     else if(sscanf(featurepair,"%ld:%lf%s",&wnum,&weight,junk)==2) {
       /* it is a regular feature */
-      wnum++;
       if(wnum<=0) { 
 	perror ("Feature numbers must be larger or equal to 1!!!\n"); 
 	printf("LINE: %s\n",line);

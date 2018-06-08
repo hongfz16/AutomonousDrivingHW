@@ -12,14 +12,16 @@ void FillGrid(vector<vector<vector<Eigen::Vector3d> > >& grid_points,
         int k=(range+points[i](1))/grid_size;
         grid_points[j][k].push_back(points[i]);
     }
-// 	for(int i=0;i<grid_points.size();++i)
-//   	{
-//     	for(int j=0;j<grid_points.size();++j)
-//     	{
-//       		cout<<grid_points[i][j].size()<<" ";
-//     	}
-//     cout<<endl;
-//   }
+	// for(int i=0;i<grid_points.size();++i)
+ //  	{
+ //    	for(int j=0;j<grid_points.size();++j)
+ //    	{
+ //    			if(grid_points[i][j].size()==0)
+ //    				continue;
+ //      		cout<<grid_points[i][j].size()<<" ";
+ //    	}
+ //    cout<<endl;
+ //  }
 }
 
 bool cmp_height(Eigen::Vector3d& lp,Eigen::Vector3d& rp)
