@@ -35,8 +35,8 @@ int main()
 	ofstream fout("/home/hongfz/Documents/Learn/AutomonousDrivingHW/perception/SVMTrainer/train.txt");
 	// string obstacle_path("obstacle/VelodyneDevice32c/");
 
-	int carcount=0;
-	int othercount=0;
+	// int carcount=0;
+	// int othercount=0;
 
 	for(int j=0;j<sub.size();++j)
 	{
@@ -63,19 +63,19 @@ int main()
 					points.push_back(vp);
 				}
 				string feature_str;
-				if(obstacle.type()==interface::perception::ObjectType::CAR && carcount<=othercount)
+				if(obstacle.type()==interface::perception::ObjectType::CAR)
 				{
-					carcount++;
+					// carcount++;
 					feature_str=ExtractTrainingFeature(points,1);
 					fout<<feature_str<<endl;
 				}
 				else
 				{
-					othercount++;
-					// for(int ii=0;ii<4;++ii)
+					// othercount++;
+					for(int ii=0;ii<4;++ii)
 					{
-						// vector<Eigen::Vector3d> newp;
-						// rand_drop_out(points,newp);
+						vector<Eigen::Vector3d> newp;
+						rand_drop_out(points,newp);
 						feature_str=ExtractTrainingFeature(points,-1);
 						fout<<feature_str<<endl;
 					}

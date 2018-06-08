@@ -1,3 +1,3 @@
 # include "svm_common.h"
 
-int Predict_CAR(char* line, MODEL *model);
+int SVM_Classifier(char* line, MODEL *model);

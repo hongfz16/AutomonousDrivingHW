@@ -9,20 +9,36 @@ void BasicStatisticFeatures(const vector<Eigen::Vector3d>& points, vector<double
 		   t1=0,t2=0,t3=0,t4=0,t5=0,t6=0;
 	for(int i=0;i<points.size();++i)
 	{
-		f1+=pow(points[i](0),2)+pow(points[i](1),2);
-		f2+=pow(points[i](0),2)+pow(points[i](2),2);
-		f3+=pow(points[i](1),2)+pow(points[i](2),2);
-		f4+=-points[i](0)*points[i](1);
-		f5+=-points[i](0)*points[i](2);
-		f6+=-points[i](1)*points[i](2);
-
 		x_mean+=points[i](0);
 		y_mean+=points[i](1);
 		z_mean+=points[i](2);
 	}
+
+
+	x_mean/=points.size();
+	y_mean/=points.size();
+	z_mean/=points.size();
+
+	for(int i=0;i<points.size();++i)
+	{
+		f1+=pow(points[i](0)-x_mean,2)+pow(points[i](1)-y_mean,2);
+		f2+=pow(points[i](0)-x_mean,2)+pow(points[i](2)-z_mean,2);
+		f3+=pow(points[i](1)-y_mean,2)+pow(points[i](2)-z_mean,2);
+		f4+=-points[i](0)*points[i](1);
+		f5+=-points[i](0)*points[i](2);
+		f6+=-points[i](1)*points[i](2);
+
+		t1+=(points[i](0)-x_mean)*(points[i](0)-x_mean);
+		t2+=(points[i](1)-y_mean)*(points[i](1)-y_mean);
+		t3+=(points[i](2)-z_mean)*(points[i](2)-z_mean);
+		t4+=(points[i](0)-x_mean)*(points[i](1)-y_mean);
+		t5+=(points[i](0)-x_mean)*(points[i](2)-z_mean);
+		t6+=(points[i](1)-y_mean)*(points[i](2)-z_mean);
+	}
 	double sm=sqrt(pow(f1,2)+pow(f2,2)+pow(f3,2)+
 				   pow(f4,2)+pow(f5,2)+pow(f6,2)+
 				   pow(points.size(),2));
+	
 	re.push_back(points.size()/sm);
 	re.push_back(f1/sm);
 	re.push_back(f2/sm);
@@ -31,27 +47,12 @@ void BasicStatisticFeatures(const vector<Eigen::Vector3d>& points, vector<double
 	re.push_back(f5/sm);
 	re.push_back(f6/sm);
 
-	x_mean/=points.size();
-	y_mean/=points.size();
-	z_mean/=points.size();
-
-	for(int i=0;i<points.size();++i)
-	{
-		t1+=(points[i](0)-x_mean)*(points[i](0)-x_mean);
-		t2+=(points[i](1)-y_mean)*(points[i](1)-y_mean);
-		t3+=(points[i](2)-z_mean)*(points[i](2)-z_mean);
-		t4+=(points[i](0)-x_mean)*(points[i](1)-y_mean);
-		t5+=(points[i](0)-x_mean)*(points[i](2)-z_mean);
-		t6+=(points[i](1)-y_mean)*(points[i](2)-z_mean);
-	}
 	re.push_back(t1/=(points.size()-1));
 	re.push_back(t2/=(points.size()-1));
 	re.push_back(t3/=(points.size()-1));
 	re.push_back(t4/=(points.size()-1));
 	re.push_back(t5/=(points.size()-1));
 	re.push_back(t6/=(points.size()-1));
-
-	// cout<<t1<<" "<<t2<<" "<<t3<<" "<<t4<<" "<<t5<<" "<<t6<<endl;
 
 	Eigen::Matrix<double,3,3> cov_matrix;
 	cov_matrix<<t1,t4,t5,
@@ -74,11 +75,6 @@ void BasicStatisticFeatures(const vector<Eigen::Vector3d>& points, vector<double
 		re.push_back(ans[2]-ans[1]);
 		re.push_back(ans[1]-ans[0]);
 	}
-}
-
-void BasicShapeFeature(const vector<Eigen::Vector3d>& points, vector<double>& re)
-{
-
 }
 
 bool QueryResultCallback(int a_data, vector<int>& resultid)
@@ -241,13 +237,9 @@ void AnguelovFeatures(const vector<Eigen::Vector3d>& points, vector<double>& re)
 		a2.push_back(count2/sum);
 		a3.push_back(count3/sum);
 	}
-	// cout<<a1.size()<<endl;
 	vector<double> a1_f=divide_bins(a1,4);
-	// cout<<"after1"<<endl;
 	vector<double> a2_f=divide_bins(a2,4);
-	// cout<<"after2"<<endl;
 	vector<double> a3_f=divide_bins(a3,4);
-	// cout<<"after3"<<endl;
 	for(int i=0;i<a1_f.size();++i)
 		re.push_back(a1_f[i]);
 	for(int i=0;i<a2_f.size();++i)
@@ -294,6 +286,20 @@ void dealwithnan(vector<double>& features)
 	}
 }
 
+void normalize(vector<double>& features)
+{
+	double total=0;
+	for(int i=0;i<features.size();++i)
+	{
+		total+=pow(features[i],2);
+	}
+	total=sqrt(total);
+	for(int i=0;i<features.size();++i)
+	{
+		features[i]/=total;
+	}
+}
+
 string ExtractFeature(const vector<Eigen::Vector3d>& points)
 {
 	vector<double> features;
@@ -301,6 +307,7 @@ string ExtractFeature(const vector<Eigen::Vector3d>& points)
 	LalondeFeatures(points,features);
 	AnguelovFeatures(points,features);
 	dealwithnan(features);
+	normalize(features);
 	return ToSVMFormat(features);
 }
 
@@ -311,5 +318,6 @@ string ExtractTrainingFeature(const vector<Eigen::Vector3d>& points, int mclass)
 	LalondeFeatures(points,features);
 	AnguelovFeatures(points,features);
 	dealwithnan(features);
+	normalize(features);
 	return ToSVMFormat(features,mclass);
 }

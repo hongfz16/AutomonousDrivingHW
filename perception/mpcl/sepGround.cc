@@ -142,99 +142,98 @@ void SeperateGroundPoints(vector<vector<Vector3d> >& sortedpoints,vector<Vector3
 	}
 }
 
-void detect_ground_points(vector<Eigen::Vector3d>& points){
-  sort(points.begin(), points.end(), [](const Eigen::Vector3d& a, const Eigen::Vector3d& b){
-    double d1 = sqrt(a(0)*a(0)+a(1)*a(1));
-    double d2 = sqrt(b(0)*b(0)+b(1)*b(1));
-    return atan2(a(2)-2, d1) < atan2(b(2)-2, d2);
-  });
+// void detect_ground_points(vector<Eigen::Vector3d>& points){
+//   sort(points.begin(), points.end(), [](const Eigen::Vector3d& a, const Eigen::Vector3d& b){
+//     double d1 = sqrt(a(0)*a(0)+a(1)*a(1));
+//     double d2 = sqrt(b(0)*b(0)+b(1)*b(1));
+//     return atan2(a(2)-2, d1) < atan2(b(2)-2, d2);
+//   });
 
-  int N = points.size();
-  Eigen::Vector3d start_point(Eigen::Vector3d::Zero());
-  double alpha = CV_PI/4;
-  double h_min = 0.4;
-  vector<Eigen::Vector3d> ground;
-  ground.clear();
+//   int N = points.size();
+//   Eigen::Vector3d start_point(Eigen::Vector3d::Zero());
+//   double alpha = CV_PI/4;
+//   double h_min = 0.4;
+//   vector<Eigen::Vector3d> ground;
+//   ground.clear();
 
-  for (int i = 0; i < N; ++i){
-    Eigen::Vector3d pre_point(start_point);
-    while (i < N){
-      double d1 = sqrt(pre_point(0)*pre_point(0)+pre_point(1)*pre_point(1));
-      double d2 = sqrt(points[i](0)*points[i](0)+points[i](1)*points[i](1));
-      double D1 = sqrt(pre_point(0)*pre_point(0)+pre_point(1)*pre_point(1)+pre_point(2)*pre_point(2));
-      double D2 = sqrt(points[i](0)*points[i](0)+points[i](1)*points[i](1)+points[i](2)*points[i](2));
-      if ( D1 > D2 || atan2(points[i](2)-pre_point(2) ,d2-d1) > alpha || points[i](2)-pre_point(2) > h_min ){
-        int j = i+1;
-        while (j < N && points[j](2)-pre_point(2) > h_min)
-          ++j;
-        i = j;
-        if (j < N)
-          start_point = points[j];
-        break;
-      }
-      ground.push_back(points[i]);
-      pre_point = points[i++];
-    }
-  }
-  /*
-  points.clear();
-  while (!ground.empty()){
-    points.push_back(ground.back());
-    ground.pop_back();
-  }
-  */
-  for (int i = 0; i < points.size(); ++i){
-    for (const Eigen::Vector3d& p: ground){
-      if (p == points[i]){
-        points.erase(points.begin()+i);
-        i--;
-        break;
-      }
-    }
-  }
-}
-
-void separate_ground_points(PointCloud& pointcloud){
-  //showPointCloud(pointcloud);
-  vector<Eigen::Vector3d>& points = pointcloud.points;
-  int N = points.size();
-  sort(points.begin(), points.end(), [](const Eigen::Vector3d& a, const Eigen::Vector3d& b){
-    return atan2(a(1),a(0)) < atan2(b(1), b(0));
-  });
-  //ofstream out("sorted.txt");
-  const double eps = CV_PI/1000;
-  double low_range = -CV_PI;
+//   for (int i = 0; i < N; ++i){
+//     Eigen::Vector3d pre_point(start_point);
+//     while (i < N){
+//       double d1 = sqrt(pre_point(0)*pre_point(0)+pre_point(1)*pre_point(1));
+//       double d2 = sqrt(points[i](0)*points[i](0)+points[i](1)*points[i](1));
+//       double D1 = sqrt(pre_point(0)*pre_point(0)+pre_point(1)*pre_point(1)+pre_point(2)*pre_point(2));
+//       double D2 = sqrt(points[i](0)*points[i](0)+points[i](1)*points[i](1)+points[i](2)*points[i](2));
+//       if ( D1 > D2 || atan2(points[i](2)-pre_point(2) ,d2-d1) > alpha || points[i](2)-pre_point(2) > h_min ){
+//         int j = i+1;
+//         while (j < N && points[j](2)-pre_point(2) > h_min)
+//           ++j;
+//         i = j;
+//         if (j < N)
+//           start_point = points[j];
+//         break;
+//       }
+//       ground.push_back(points[i]);
+//       pre_point = points[i++];
+//     }
+//   }
   
-  vector<Eigen::Vector3d> points_; points_.clear();
-  for (int i = 0, j = 0; i < 2000; ++i, low_range += eps){
-    vector<Eigen::Vector3d> line_points;
-    line_points.clear();
-    while (j < N){
-      double angle = atan2(points[j](1), points[j](0));
-      if (angle >= low_range && angle < low_range+eps){
-        line_points.push_back(points[j++]);
-        continue;
-      }
-      break;
-    }
-    detect_ground_points(line_points);
-    points_.insert(points_.begin(), line_points.begin(), line_points.end());
-  }
-  //out.close();
+//   points.clear();
+//   while (!ground.empty()){
+//     points.push_back(ground.back());
+//     ground.pop_back();
+//   }
+  
+//   for (int i = 0; i < points.size(); ++i){
+//     for (const Eigen::Vector3d& p: ground){
+//       if (p == points[i]){
+//         points.erase(points.begin()+i);
+//         i--;
+//         break;
+//       }
+//     }
+//   }
+// }
 
-  points.clear();
-  //cout << points.size() << endl;
-  points.insert(points.begin(), points_.begin(), points_.end());
-  //showPointCloud(pointcloud);
-}
+// void separate_ground_points(PointCloud& pointcloud){
+//   //showPointCloud(pointcloud);
+//   vector<Eigen::Vector3d>& points = pointcloud.points;
+//   int N = points.size();
+//   sort(points.begin(), points.end(), [](const Eigen::Vector3d& a, const Eigen::Vector3d& b){
+//     return atan2(a(1),a(0)) < atan2(b(1), b(0));
+//   });
+//   //ofstream out("sorted.txt");
+//   const double eps = CV_PI/1000;
+//   double low_range = -CV_PI;
+  
+//   vector<Eigen::Vector3d> points_; points_.clear();
+//   for (int i = 0, j = 0; i < 2000; ++i, low_range += eps){
+//     vector<Eigen::Vector3d> line_points;
+//     line_points.clear();
+//     while (j < N){
+//       double angle = atan2(points[j](1), points[j](0));
+//       if (angle >= low_range && angle < low_range+eps){
+//         line_points.push_back(points[j++]);
+//         continue;
+//       }
+//       break;
+//     }
+//     detect_ground_points(line_points);
+//     points_.insert(points_.begin(), line_points.begin(), line_points.end());
+//   }
+//   //out.close();
+
+//   points.clear();
+//   //cout << points.size() << endl;
+//   points.insert(points.begin(), points_.begin(), points_.end());
+//   //showPointCloud(pointcloud);
+// }
 
 void remove_ground_points(PointCloud& pc)
 {
-//   double PI=3.141592653;
-//   vector<vector<Vector3d> > sortedpoints;
-//   preprocess(pc.points,sortedpoints);
-//   vector<Vector3d> ground,nonground;
-//   SeperateGroundPoints(sortedpoints,ground,nonground,PI/4,0.1,0.1);
-//   pc.points=nonground;
-	separate_ground_points(pc);
+  double PI=3.141592653;
+  vector<vector<Vector3d> > sortedpoints;
+  preprocess(pc.points,sortedpoints);
+  vector<Vector3d> ground,nonground;
+  SeperateGroundPoints(sortedpoints,ground,nonground,PI/4,0.1,0.1);
+  pc.points=nonground;
 }

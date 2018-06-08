@@ -12,21 +12,28 @@ void FillGrid(vector<vector<vector<Eigen::Vector3d> > >& grid_points,
         int k=(range+points[i](1))/grid_size;
         grid_points[j][k].push_back(points[i]);
     }
-	// for(int i=0;i<grid_points.size();++i)
- //  	{
- //    	for(int j=0;j<grid_points.size();++j)
- //    	{
- //    			if(grid_points[i][j].size()==0)
- //    				continue;
- //      		cout<<grid_points[i][j].size()<<" ";
- //    	}
- //    cout<<endl;
- //  }
 }
 
 bool cmp_height(Eigen::Vector3d& lp,Eigen::Vector3d& rp)
 {
 	return lp(2)<rp(2);
+}
+
+void remove_out_range(vector<Eigen::Vector3d>& points, int th)
+{
+	while(points.size()>1)
+	{
+		Eigen::Vector3d q_back = points.back();
+		int index = points.size()-1;
+		while (q_back(2) - points[index](2) < 1)
+			--index;
+
+		if (points.size()-index < th){
+			points.pop_back();
+			continue;
+		}
+		break;
+	}
 }
 
 void RemoveNoisePoints(vector<vector<vector<Eigen::Vector3d> > >& grid_points)
@@ -35,78 +42,12 @@ void RemoveNoisePoints(vector<vector<vector<Eigen::Vector3d> > >& grid_points)
     {
         for(int j=0;j<grid_points[i].size();++j)
         {
-			// cout<<grid_points[i][j].size()<<" ";
 			if(grid_points[i][j].empty())
 				continue;
 			sort(grid_points[i][j].begin(),grid_points[i][j].end(),cmp_height);
-			while(grid_points[i][j].size()>1)
-			{
-				// int count=0;
-				// int size=grid_points[i][j].size();
-				// double curr_height=grid_points[i][j][size-1](2);
-				// for(int kk=size-1;kk>=0;--kk)
-				// {
-				// 	if(curr_height-grid_points[i][j][kk](2)<1)
-				// 	{
-				// 		count++;
-				// 	}
-				// 	else
-				// 		break;
-				// }
-				// if(count<15)
-				// {
-				// 	grid_points[i][j].pop_back();
-				// }
-				// else
-				// {
-				// 	break;
-				// }
-				Eigen::Vector3d q1 = grid_points[i][j].back();
-				int index = grid_points[i][j].size()-1;
-				while (q1(2) - grid_points[i][j][index](2) < 1)
-					--index;
-
-				if (grid_points[i][j].size()-index < 15){
-					grid_points[i][j].pop_back();
-					continue;
-				}
-				break;
-			}
+			remove_out_range(grid_points[i][j],15);
 			reverse(grid_points[i][j].begin(),grid_points[i][j].end());
-			while(grid_points[i][j].size()>1)
-			{
-				// int count=0;
-				// int size=grid_points[i][j].size();
-				// double curr_height=grid_points[i][j][size-1](2);
-				// for(int kk=size-1;kk>=0;--kk)
-				// {
-				// 	if(abs(curr_height-grid_points[i][j][kk](2))<1)
-				// 	{
-				// 		count++;
-				// 	}
-				// 	else
-				// 		break;
-				// }
-				// if(count<15)
-				// {
-				// 	grid_points[i][j].pop_back();
-				// 	count=0;
-				// }
-				// else
-				// {
-				// 	break;
-				// }
-				Eigen::Vector3d q1 = grid_points[i][j].back();
-				int index = grid_points[i][j].size()-1;
-				while (index >= 0 && grid_points[i][j][index](2) - q1(2) < 1)
-					--index;
-
-				if (grid_points[i][j].size()-index < 15){
-					grid_points[i][j].pop_back();
-					continue;
-				}
-				break;
-			}
+			remove_out_range(grid_points[i][j],15);
         }
     }
 }
@@ -142,21 +83,6 @@ void MarkGrid(const vector<vector<vector<Eigen::Vector3d> > >& grid_points,
 			if(mark[i][j]==0)
 				continue;
 			bool safe=false;
-			// for(int ii=-3;ii<=3;++ii)
-			// {
-			// 	for(int jj=-3;jj<=3;++jj)
-			// 	{
-			// 		if(ii==jj==0)
-			// 			continue;
-			// 		if(i+ii<0 || j+jj<0 || i+ii>mark.size()-1 || j+jj>mark.size()-1)
-			// 			continue;
-			// 		if(mark[i+ii][j+jj]==1)
-			// 		{
-			// 			cout<<"here"<<endl;
-			// 			safe=true;
-			// 		}
-			// 	}
-			// }
 			for(int ii=max(0,i-3);ii<=i+3 && ii<mark.size();++ii)
 			{
 				for(int jj=max(0,j-3);jj<=j+3 && jj<mark.size();++jj)
@@ -182,30 +108,14 @@ void MarkGrid(const vector<vector<vector<Eigen::Vector3d> > >& grid_points,
 		{
 			if(mark[i][j]==1)
 			{
-			int dx[4]={0,1,0,-1};
-			int dy[4]={1,0,-1,0};
-			// for(int ii=-1;ii<=1;++ii)
-			// {
-			// 	for(int jj=-1;jj<=1;++jj)
-			// 	{
-			// 		if(ii==jj==0 || ii*jj!=0)
-			// 			continue;
-			// 		if(i+ii<0 || j+jj<0 || i+ii>mark.size()-1 || j+jj>mark.size()-1)
-			// 			continue;
-			// 		if(mark[i][j]==1 && mark[i+ii][j+jj]==0)
-			// 		{
-			// 			cout<<"here"<<endl;
-			// 			mark[i+ii][j+jj]=2;
-			// 		}
-			// 	}
-			// }
-			for(int k=0;k<4;++k)
+			int dx[8]={0,1,0,-1,1,1,-1,-1};
+			int dy[8]={1,0,-1,0,1,-1,1,-1};
+			for(int k=0;k<8;++k)
 			{
 				if(i+dx[k]>=0 && i+dx[k]<mark.size() &&
 				   j+dy[k]>=0 && j+dy[k]<mark.size() &&
 				   mark[i+dx[k]][j+dy[k]]==0)
 				{
-					// cout<<"here"<<endl;
 					mark[i+dx[k]][j+dy[k]]=2;
 				}
 			}
@@ -229,27 +139,6 @@ void BFS(const vector<vector<int> >& mark,
 	{
 		pair<int,int> cp=s.top();
 		s.pop();
-		// for(int i=-1;i<=1;++i)
-		// {
-		// 	for(int j=-1;j<=1;++j)
-		// 	{
-		// 		if(i==j==0)
-		// 			continue;
-		// 		if(i*j!=0)
-		// 			continue;
-		// 		if(cp.first+i<0 || cp.second+j<0 || 
-		// 			cp.first+i>mark.size()-1 || cp.second+j>mark.size()-1)
-		// 			continue;
-		// 		if(visited[cp.first+i][cp.second+j])
-		// 			continue;
-		// 		if(mark[cp.first+i][cp.second+j]!=0)
-		// 		{
-		// 			s.push(pair<int,int>(cp.first+i,cp.second+j));
-		// 			block.push_back(pair<int,int>(cp.first+i,cp.second+j));
-		// 			visited[cp.first+i][cp.second+j]=1;
-		// 		}
-		// 	}
-		// }
 		for(int k=0;k<4;++k)
 		{
 			if(cp.first+dx[k]>=0 && cp.first+dx[k]<mark.size() &&
@@ -257,6 +146,7 @@ void BFS(const vector<vector<int> >& mark,
 			   !visited[cp.first+dx[k]][cp.second+dy[k]] &&
 			   mark[cp.first+dx[k]][cp.second+dy[k]]!=0)
 			{
+
 				s.push(pair<int,int>(cp.first+dx[k],cp.second+dy[k]));
 				block.push_back(pair<int,int>(cp.first+dx[k],cp.second+dy[k]));
 				visited[cp.first+dx[k]][cp.second+dy[k]]=1;

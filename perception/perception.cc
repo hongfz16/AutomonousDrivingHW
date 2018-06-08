@@ -17,17 +17,24 @@
 using namespace std;
 
 const int n=100;
-const double height_th=0.1;
+const double height_th=0.15;
 const double range=30;
 MODEL* model = NULL;
-char modelfile[200]="/home/hongfz/Documents/Learn/AutomonousDrivingHW/perception/SVM/model";
+
+string path_prefix("/home/hongfz/Documents/Learn/AutomonousDrivingHW");
 
 int gcount=0;
 
 interface::perception::PerceptionObstacles Perception::RunPerception(
     const PointCloud& pointcloud, const utils::Optional<cv::Mat>& image) {
   if(model==NULL)
+  {
+    string str_file;
+    str_file=path_prefix+"/perception/SVM/model";
+    char* modelfile=new char[str_file.length()+1];
+    strcpy(modelfile,str_file.c_str());
     model=read_model(modelfile);
+  }
 
   interface::perception::PerceptionObstacles perception_result;
 
@@ -71,20 +78,6 @@ interface::perception::PerceptionObstacles Perception::RunPerception(
   FindConnectedBlocks(mark,blocks);
   FindObstacles(blocks,grid_points,max_height,min_height,positions);
 
-  // for(int i=0;i<mark.size();++i)
-  // {
-  //   for(int j=0;j<mark.size();++j)
-  //   {
-  //     if(mark[i][j]==1)
-  //       cout<<"O";
-  //     if(mark[i][j]==2)
-  //       cout<<"M";
-  //     else
-  //       cout<<" ";
-  //   }
-  //   cout<<endl;
-  // }
-
   for(int i=0;i<positions.size();++i)
   {
     auto* obstacle=perception_result.add_obstacle();
@@ -100,16 +93,36 @@ interface::perception::PerceptionObstacles Perception::RunPerception(
     string feature_str=ExtractFeature(positions[i].points);
     char* feature_cstr=new char[feature_str.length()+1];
     strcpy(feature_cstr, feature_str.c_str());
-    // cout<<feature_str<<endl;
-    if(Predict_CAR(feature_cstr,model)==1)
+    if(SVM_Classifier(feature_cstr,model)==1)
     {
       obstacle->set_id(string("car_")+to_string(i));
       obstacle->set_type(interface::perception::ObjectType::CAR);
     }
     else
     {
-      obstacle->set_id(string("unknown_")+to_string(i));
-      obstacle->set_type(interface::perception::ObjectType::UNKNOWN_TYPE);
+      if(positions[i].height<2)
+      {
+        double linesize=0;
+        for(int j=0;j<positions[i].MBR.size();++j)
+        {
+          pair<double,double> cu,ne;
+          int next=(j+1)%positions[i].MBR.size();
+          cu=positions[i].MBR[j];
+          ne=positions[i].MBR[next];
+          linesize+=sqrt(pow(cu.first-ne.first,2)+pow(cu.second-ne.second,2));
+        }
+        linesize/=positions[i].MBR.size();
+        if(linesize<0.5)
+        {
+          obstacle->set_id(string("pedestrain_")+to_string(i));
+          obstacle->set_type(interface::perception::ObjectType::PEDESTRIAN);
+        }
+        else
+        {
+          obstacle->set_id(string("unknown_")+to_string(i));
+          obstacle->set_type(interface::perception::ObjectType::UNKNOWN_TYPE);
+        }
+      }
     }
     delete [] feature_cstr;
   }
