@@ -25,7 +25,7 @@ inline void hongfz16::SimpleVehicleAgent::register_debug_info()
 void hongfz16::SimpleVehicleAgent::Initialize(const interface::agent::AgentStatus& agent_status)
 {
 	car_info.ready=true;
-	string mapfilename=fileprefix+"pnc/agents/hongfz16/mymap/new_map_proto.txt";
+	string mapfilename=fileprefix+"/pnc/agents/hongfz16/mymap/new_map_proto.txt";
 	CHECK(file::ReadFileToProto(mapfilename, &mapdata));
 	init_param(agent_status);
 }

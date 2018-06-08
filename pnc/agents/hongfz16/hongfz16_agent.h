@@ -163,7 +163,7 @@ private:
 
 private:
 	//PLEASE CHANGE THE FILEPREFIX TO YOUR WORKING PATH BEFORE YOU RUN THIS CODE
-	string fileprefix="/home/hongfz/Documents/Learn/AutomonousDrivingHW/";
+	string fileprefix="/home/hongfz/Documents/Learn/AutomonousDrivingHW";
 
 	CarInfo car_info;
 
