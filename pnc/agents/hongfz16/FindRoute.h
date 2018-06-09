@@ -71,7 +71,7 @@ double CalcDistPoint2d(interface::geometry::Point2D& lp,interface::geometry::Poi
 int findclosestid(interface::geometry::Point2D& p,const interface::map::Lane& lane)
 {
 	int id=0;
-	int ndist=1e8;
+	double ndist=1e8;
 	int cnt=0;
 	for(const interface::geometry::Point3D& lp : lane.central_line().point())
 	{
