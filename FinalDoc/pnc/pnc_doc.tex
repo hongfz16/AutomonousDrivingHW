@@ -1,0 +1,61 @@
+%!TEX program = xelatex
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fontspec,xltxtra,xunicode}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{fontspec,xltxtra,xunicode}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{changepage}
+
+
+\defaultfontfeatures{Mapping=tex-text}
+\setromanfont{Heiti SC}
+\XeTeXlinebreaklocale “zh”
+
+\title{Project2 PNC Document}
+\author{洪方舟\\Student ID: 2016013259\\Email: \href{mailto:hongfz16@163.com}{hongfz16@163.com}}
+
+\geometry{left=2cm,right=2cm,top=1cm,bottom=2cm}
+\renewcommand{\baselinestretch}{1.5}
+
+\begin{document}
+  \maketitle
+  \section*{一. 项目目标}
+  	实现自动驾驶汽车规划以及控制算法，在遵守交通规则、不撞到行人以及其他车、尽量保证乘客舒适的前提下，在模拟环境中完成10趟接送客人的任务。
+  \section*{二. 运行方法}
+  	将$hongfz16/hongfz16_agent.h$文件中第166行替换为运行环境项目文件夹名即可。
+  \section*{三. 方法介绍}
+	下面将从路径规划，速度规划，方向控制，速度控制四个方面阐述该项目所使用的方法。
+	\subsection*{1. 路径规划}
+		路径规划发生在新的行程请求到达之后。路径规划算法利用预处理的地图中前驱后继信息，使用广度优先搜索找到最短路径。将途经所有道路中心线上点存入路径信息。
+	\subsection*{2. 速度规划}
+		速度规划发生于每一次迭代中。基本思想为根据路况计算出某个预计点所需要到达的速度，然后根据该速度，预计点与自身距离计算出期望加速度。路况信息主要分为三类：可移动障碍物（行人与车辆），红绿灯，到达终点。对于可移动障碍，计算其行进路线与自身规划路径是否存在交点，如果有，则以该交点为预计点，根据可移动障碍到该交点的距离计算该点的期望速度。对于红绿灯与到达终点的情况，则提前一定的距离开始减速，以红绿灯路口或终点为预计点，期望速度为0。每一次迭代中给出当前期望加速度，供速度控制模块使用。
+	\subsection*{3. 方向控制}
+		方向控制使用改进的PID算法。由于单一误差量很难准确描述车辆状态，因此本项目采用两种误差量：当前车辆位置到期望路径的距离(Cross Track Error)，当前速度方向与期望行进方向的角度差。分别对上述两个误差量进行PID控制，将控制结果相加返回作为最终方向盘转向控制量。
+	\subsection*{4. 速度控制}
+		速度控制相对方向控制较为简单，直接对期望加速度与当前加速度之差进行PID控制。
+  \section*{四. 流程介绍}
+  	1. 每次迭代中首先检查是否有新的路径请求，如果有，则进行一系列初始化操作，包括路径规划。\\
+  	2. 如果没有新的路径请求，则开始如下控制流程。首先进行方向控制计算两个误差量，经过PID控制得到方向盘命令。\\
+  	3. 接着进行速度控制，通过速度规划得到期望加速度，通过速度控制得到加速或减速命令。\\
+  	4. 返回命令，一次迭代结束。\\
+  \section*{五. 结果}
+  	在大多数情况下能够顺利完成任务。一次典型的运行结果如下。
+  	\begin{align*}
+  		num\_finish\_trips&: \: 10\\
+  		big\_acc\_sqr\_sum\_total&: \: 138859.2208884063\\
+  		big\_acc\_sqr\_sum\_per\_trip&: \: 13885.922088840631\\
+  		curvature\_sqr\_sum\_total&: \: 55593133.817445092\\
+  		curvature\_sqr\_sum\_per\_trip&: \: 5559313.38174451\\
+  		time\_cost\_total&: \: 979.88999999925386\\
+  		time\_cost\_per\_trip&: \: 97.988999999925383\\
+  	\end{align*}
+ \end{document}
