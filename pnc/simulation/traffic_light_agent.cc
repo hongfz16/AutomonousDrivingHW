@@ -2,9 +2,9 @@
 
 #include <iomanip>
 
+#include "glog/logging.h"
 #include "common/utils/math/common.h"
 #include "pnc/simulation/traffic_light_agent.h"
-#include "glog/logging.h"
 
 namespace {
 

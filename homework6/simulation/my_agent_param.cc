@@ -3,17 +3,18 @@
 #include "my_agent_param.h"
 using namespace std;
 
-//double my_agent_pid[3]={10,2,0};
+double my_agent_pid[3]={10,2,0};
 //double my_agent_pid[3]={14.9085, 0.574384, -0.0480859};
 //double my_agent_pid[3]={9.93098, 2.17319, -0.000706965};
 //double my_agent_pid[3]={10.1452, 2.07415, -0.000967527};
-double my_agent_pid[3]={-2, 0, 0};
+//double my_agent_pid[3]={9.94609, 2.17134, -0.00245051};
 
+bool finished=false;
 double err=0;
 double best_err=0;
 bool inited=false;
 
-double dpid[3]={1,0.1,0.1};
+double dpid[3]={0.1,0.1,0.1};
 
 double tol=0.001;
 

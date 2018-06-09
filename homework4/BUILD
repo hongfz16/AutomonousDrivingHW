@@ -60,7 +60,7 @@ cc_library(
     deps=[
         "//common/proto:cc_perception_proto",
         "//common/proto:cc_object_labeling_3d_proto",
-        "//homework2/PointCloud:pointcloud",
+        "//homework2:pointcloud",
     ]
 )
 

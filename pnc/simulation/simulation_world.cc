@@ -28,8 +28,7 @@ double DistanceToObstacle(const VehicleStatus& vehicle_status, const PerceptionO
 
 namespace simulation {
 
-VehicleStatus SimulationWorld::GenerateRandomInitialStatus() {
-  std::vector<interface::agent::VehicleStatus> vehicle_status_candidates;
+void SimulationWorld::GenerateInitialStatusCandidates() {
   for (const interface::map::Lane& lane : map_.lane()) {
     const interface::geometry::Polyline& left_bound = lane.left_bound().boundary();
     if (left_bound.point_size() == 2) {
@@ -50,11 +49,19 @@ VehicleStatus SimulationWorld::GenerateRandomInitialStatus() {
         vehicle_status.mutable_orientation()->set_y(quat.y());
         vehicle_status.mutable_orientation()->set_z(quat.z());
         vehicle_status.mutable_orientation()->set_w(quat.w());
-        vehicle_status_candidates.push_back(vehicle_status);
+        initial_vehicle_status_candidates_.push_back(vehicle_status);
       }
     }
   }
-  return vehicle_status_candidates[std::rand() % vehicle_status_candidates.size()];
+  current_initial_vehicle_status_index_ = 0;
+}
+
+VehicleStatus SimulationWorld::GenerateRandomInitialStatus() {
+  CHECK(current_initial_vehicle_status_index_ < initial_vehicle_status_candidates_.size())
+      << "Generated too many vehicle agents";
+  VehicleStatus result = initial_vehicle_status_candidates_[current_initial_vehicle_status_index_];
+  current_initial_vehicle_status_index_++;
+  return result;
 }
 
 interface::geometry::Point3D SimulationWorld::GenerateRandomRouterRequest() {

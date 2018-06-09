@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _FINDROUTE_H_
 #define _FINDROUTE_H_
 
@@ -39,32 +41,6 @@ int FindLaneId(const interface::geometry::Point2D& testpoint, const interface::m
 		l1=lane.left_bound().boundary().point(lsize-1);
 		r0=lane.right_bound().boundary().point(0);
 		r1=lane.right_bound().boundary().point(rsize-1);
-		// vector<interface::geometry::Point3D> pvec;
-		// pvec.push_back(l0);
-		// pvec.push_back(l1);
-		// pvec.push_back(r0);
-		// pvec.push_back(r1);
-		// int nCross=0;
-		// for(int i=0;i<4;++i)
-		// {
-		// 	interface::geometry::Point3D p1,p2;
-		// 	p1=pvec[i];
-		// 	p2=pvec[(i+1)%4];
-		// 	if(p1.y()==p2.y())
-		// 		continue;
-		// 	if(testpoint.y()<min(p1.y(),p2.y()))
-		// 		continue;
-		// 	if(testpoint.y()>max(p1.y(),p2.y()))
-		// 		continue;
-		// 	double xx=(testpoint.y()-p1.y())*(p2.x()-p1.x())/(p2.y()-p1.y())+p1.x();
-		// 	if(xx>testpoint.x())
-		// 		nCross++;
-		// }
-		// if(nCross%2==1)
-		// {
-		// 	return count;
-		// }
-		// ++count;
 
 		//use simple square box to decide
 		double xmin=min(min(l0.x(),l1.x()),min(r0.x(),r1.x()));
@@ -92,13 +68,38 @@ double CalcDistPoint2d(interface::geometry::Point2D& lp,interface::geometry::Poi
 	return std::sqrt((lp.x()-rp.x())*(lp.x()-rp.x())+(lp.y()-rp.y())*(lp.y()-rp.y()));
 }
 
+int findclosestid(interface::geometry::Point2D& p,const interface::map::Lane& lane)
+{
+	int id=0;
+	int ndist=1e8;
+	int cnt=0;
+	for(const interface::geometry::Point3D& lp : lane.central_line().point())
+	{
+		interface::geometry::Point2D lanep;
+		lanep.set_x(lp.x());
+		lanep.set_y(lp.y());
+		double dist=CalcDistPoint2d(lanep,p);
+		if(dist<ndist)
+		{
+			ndist=dist;
+			id=cnt;
+		}
+		else
+		{
+			break;
+		}
+		++cnt;
+	}
+	return id;
+}
+
 //inputfilename is the proto file containing starting and ending point
-void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& start3d, const interface::geometry::Point3D& ene3d, interface::route::Route& route)
+void FindRoute(const interface::map::Map& mapdata, const interface::geometry::Vector3d& start3d, const interface::geometry::Point3D& ene3d, interface::route::Route& route)
 {
 	//Read all the information
-	interface::map::Map mapdata;
+	// interface::map::Map mapdata;
 
-	CHECK(file::ReadFileToProto(mapfilename, &mapdata));
+	// CHECK(file::ReadFileToProto(mapfilename, &mapdata));
 	interface::geometry::Point2D start_point,end_point;
 	start_point.set_x(start3d.x());
 	start_point.set_y(start3d.y());
@@ -113,6 +114,84 @@ void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& s
 		return;
 	}
 	//cout<<start_id<<" "<<end_id<<endl;
+
+	if(start_id==end_id)
+	{
+		interface::map::Lane samelane=FindCorrectLane(start_id,mapdata);
+		interface::geometry::Point2D lanestartp;
+		lanestartp.set_x(samelane.central_line().point(0).x());
+		lanestartp.set_y(samelane.central_line().point(0).y());
+		double lanestart2start=CalcDistPoint2d(lanestartp,start_point);
+		double lanestartp2end=CalcDistPoint2d(lanestartp,end_point);
+		if(lanestart2start<lanestartp2end)
+		{
+			int ids=findclosestid(start_point,samelane);
+			int ide=findclosestid(end_point,samelane);
+			interface::geometry::Point2D idspoint,idepoint;
+			idspoint.set_x(samelane.central_line().point(ids).x());
+			idspoint.set_y(samelane.central_line().point(ids).y());
+			idepoint.set_x(samelane.central_line().point(ide).x());
+			idepoint.set_y(samelane.central_line().point(ide).y());
+			double distids=CalcDistPoint2d(idspoint,lanestartp);
+			double distide=CalcDistPoint2d(idepoint,lanestartp);
+			if(distids<lanestart2start)
+				ids++;
+			if(distide>lanestartp2end)
+				ide--;
+			interface::geometry::Point2D p2d;
+			interface::geometry::Point2D old_p2d;
+			old_p2d.CopyFrom(start_point);
+			auto* newsp=route.add_route_point();
+			newsp->CopyFrom(start_point);
+			for(int i=ids;i<=ide;++i)
+			{
+				p2d.set_x(samelane.central_line().point(i).x());
+				p2d.set_y(samelane.central_line().point(i).y());
+				double disttoold=CalcDistPoint2d(old_p2d,p2d);
+				if(disttoold<2)
+					continue;
+				auto* newroutepoint=route.add_route_point();
+				newroutepoint->CopyFrom(p2d);
+				old_p2d.CopyFrom(p2d);
+			}
+			auto* newep=route.add_route_point();
+			newep->CopyFrom(end_point);
+			return;
+		}
+		else
+		{
+			int ids=findclosestid(start_point,samelane);
+			interface::geometry::Point2D idspoint;
+			idspoint.set_x(samelane.central_line().point(ids).x());
+			idspoint.set_y(samelane.central_line().point(ids).y());
+			double distids=CalcDistPoint2d(idspoint,lanestartp);
+			if(distids<lanestart2start)
+				ids++;
+			interface::geometry::Point2D p2d;
+			interface::geometry::Point2D old_p2d;
+			old_p2d.CopyFrom(start_point);
+			auto* newsp=route.add_route_point();
+			newsp->CopyFrom(start_point);
+			for(int i=ids;i<samelane.central_line().point_size();++i)
+			{
+				p2d.set_x(samelane.central_line().point(i).x());
+				p2d.set_y(samelane.central_line().point(i).y());
+				double disttoold=CalcDistPoint2d(old_p2d,p2d);
+				if(disttoold<2)
+					continue;
+				auto* newroutepoint=route.add_route_point();
+				newroutepoint->CopyFrom(p2d);
+				old_p2d.CopyFrom(p2d);
+			}
+			int nextid=GetId(samelane.predecessor(0).id());
+			cout<<"nextid: "<<nextid<<endl;
+			interface::map::Lane templane=FindCorrectLane(nextid,mapdata);
+			start_id=nextid;
+			start_point.set_x(templane.central_line().point(1).x());
+			start_point.set_y(templane.central_line().point(1).y());
+		}
+	}
+
 	interface::map::Lane start_lane=FindCorrectLane(start_id,mapdata);
 	interface::map::Lane end_lane=FindCorrectLane(end_id,mapdata);
 	int lanesize=mapdata.lane_size();
@@ -164,10 +243,10 @@ void FindRoute(const string& mapfilename, const interface::geometry::Vector3d& s
 			break;
 		routeid.push_back(record[last]);
 	}
-	for(int i=0;i<routeid.size();++i)
-	{
-		cout<<routeid[i]<<endl;
-	}
+	// for(int i=0;i<routeid.size();++i)
+	// {
+	// 	cout<<routeid[i]<<endl;
+	// }
 	//Add route points(lanes' central line points) to route
 
 	interface::geometry::Point2D last_add_route_point;

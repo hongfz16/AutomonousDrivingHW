@@ -38,7 +38,7 @@ void SimulationSystem::Start() {
   auto system_time = std::chrono::steady_clock::now();
   int count=0;
   while (true) {
-    if(count>1000)
+    if(count>10000)
       break;
     count++;
     FlushPlaybackCommands();
@@ -54,12 +54,13 @@ void SimulationSystem::Start() {
       simulation_world_->UpdateControlCommand(control_command_map_);
       simulation_world_->RunOneIteration();
       if (simulation_world_->DetermineSimulationFinished()) {
+        finished=true;
         break;
       }
     }
     system_time +=
         std::chrono::microseconds(static_cast<int64_t>(10000 / playback_status().playback_speed_x));
-    //std::this_thread::sleep_until(system_time);
+    std::this_thread::sleep_until(system_time);
   }
   {
     utils::MutexLocker lock(&mutex_);
@@ -67,7 +68,12 @@ void SimulationSystem::Start() {
     simulation_time_ = simulation_world_->GetSimulationTime();
   }
   //cout<<"Max Iteration: "<<count<<endl;
+  if(!finished)
+  {
+    err=100000000;
+  }
   updateparam();
+  finished=false;
 }
 
 interface::simulation::SimulationSystemData SimulationSystem::FetchData() {

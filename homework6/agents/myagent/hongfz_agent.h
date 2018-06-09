@@ -69,11 +69,13 @@ public:
 	  //<<agent_status.vehicle_status().velocity().z()<<endl;
 
 	  currerr=UpdatenGetErr(agent_status);
-	  //cout<<currerr<<endl;
+	  // cout<<currerr<<endl;
 	  err+=currerr;
 
 	  if(finish)
+	  {
 	  	return command;
+	  }
 
 	  if(nextdest+1<=totaldests && ReachNextDest(agent_status))
 	  {
@@ -276,33 +278,33 @@ public:
 		double d=my_agent_pid[2];
 
 		//->>>> Using angle as control parameter
-		// interface::geometry::Vector3d velocity;
-		// velocity.CopyFrom(agent_status.vehicle_status().velocity());
-		// interface::geometry::Point2D targetvec;
-		// targetvec.set_x(route.route_point(nextdest).x()-agent_status.vehicle_status().position().x());
-		// targetvec.set_y(route.route_point(nextdest).y()-agent_status.vehicle_status().position().y());
-		// double delta=CalcAngle(velocity.x(),targetvec.x(),velocity.y(),targetvec.y());
+		interface::geometry::Vector3d velocity;
+		velocity.CopyFrom(agent_status.vehicle_status().velocity());
+		interface::geometry::Point2D targetvec;
+		targetvec.set_x(route.route_point(nextdest).x()-agent_status.vehicle_status().position().x());
+		targetvec.set_y(route.route_point(nextdest).y()-agent_status.vehicle_status().position().y());
+		double delta=CalcAngle(velocity.x(),targetvec.x(),velocity.y(),targetvec.y());
 
-		// //cout<<delta<<endl;
+		//cout<<delta<<endl;
 
-		double delta=currerr;
+		//double delta=currerr;
 
-		// interface::geometry::Vector3d pa,po;
-		// interface::geometry::Point3D pb;
-		// po.CopyFrom(agent_status.vehicle_status().position());
-		// pa.set_x(route.route_point(nextdest).x());
-		// pa.set_y(route.route_point(nextdest).y());
-		// pa.set_z(0);
-		// pb.set_x(route.route_point(nextdest+1).x());
-		// pb.set_y(route.route_point(nextdest+1).y());
-		// pb.set_z(0);
-		// double ax=agent_status.vehicle_status().velocity().x();
-		// double ay=agent_status.vehicle_status().velocity().y();
-		// double bx=pa.x()-po.x();
-		// double by=pa.y()-po.y();
-		// double cross_result=ax*by-ay*bx;
-		// if(cross_result<0)
-		// 	delta=-delta;
+		interface::geometry::Vector3d pa,po;
+		interface::geometry::Point3D pb;
+		po.CopyFrom(agent_status.vehicle_status().position());
+		pa.set_x(route.route_point(nextdest).x());
+		pa.set_y(route.route_point(nextdest).y());
+		pa.set_z(0);
+		pb.set_x(route.route_point(nextdest+1).x());
+		pb.set_y(route.route_point(nextdest+1).y());
+		pb.set_z(0);
+		double ax=agent_status.vehicle_status().velocity().x();
+		double ay=agent_status.vehicle_status().velocity().y();
+		double bx=pa.x()-po.x();
+		double by=pa.y()-po.y();
+		double cross_result=ax*by-ay*bx;
+		if(cross_result<0)
+			delta=-delta;
 
 		//cout<<last_steer_command.first<<endl;
 

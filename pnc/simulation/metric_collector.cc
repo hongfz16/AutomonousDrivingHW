@@ -26,7 +26,8 @@ void MetricCollector::AddMetricFrame(const interface::agent::AgentStatus& agent_
   }
 
   if (frame_count_ > 1) {
-    math::Vec2d last_velocity(last_vehicle_status_.velocity().x(), last_vehicle_status_.velocity().y());
+    math::Vec2d last_velocity(last_vehicle_status_.velocity().x(),
+                              last_vehicle_status_.velocity().y());
     math::Vec2d current_velocity(vehicle_status.velocity().x(), vehicle_status.velocity().y());
     double acc = (current_velocity - last_velocity).Length() / kDeltaT;
     if (std::abs(acc) > 3) {
