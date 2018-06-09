@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.27)  8 JUN 2018 23:43
+This is XeTeX, Version 3.14159265-2.6-0.99998 (TeX Live 2017) (preloaded format=xelatex 2018.2.27)  9 JUN 2018 10:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -873,56 +873,56 @@ File: se-ascii-print.def 2016/05/16 v1.11 stringenc: Printable ASCII characters
 [1
 
 ]
-Overfull \hbox (7.92801pt too wide) in paragraph at lines 42--62
+Overfull \hbox (7.92801pt too wide) in paragraph at lines 42--63
 \TU/HeitiSC(0)/m/n/12 对于上一步骤提取出的障碍物内所有点提取特征[[]]，主要包括如下特征 其中Lalonde特征为参考
  []
 
 
-Overfull \hbox (7.22401pt too wide) in paragraph at lines 42--62
+Overfull \hbox (7.22401pt too wide) in paragraph at lines 42--63
 \TU/HeitiSC(0)/m/n/12 Lalonde等人[[]]提出的一种基于局部特征的直方图统计量。对于每个点周围的20个邻近点，计算
  []
 
 
-Overfull \hbox (11.14801pt too wide) in paragraph at lines 42--62
+Overfull \hbox (11.14801pt too wide) in paragraph at lines 42--63
 \TU/HeitiSC(0)/m/n/12 Anguelov特征为参考Anguelov等人[[]]提出的一种基于局部特征的直方图统计量。对于每个点取
  []
 
 
-Overfull \hbox (2.784pt too wide) in paragraph at lines 42--62
+Overfull \hbox (2.784pt too wide) in paragraph at lines 42--63
 \TU/HeitiSC(0)/m/n/12 周围直径为0.1米，母线长2米的圆柱体内所有点，将所有点从上至下等距离划分为三个部分，统
  []
 
 
-Overfull \hbox (4.56912pt too wide) in paragraph at lines 42--62
+Overfull \hbox (4.56912pt too wide) in paragraph at lines 42--63
 \TU/HeitiSC(0)/m/n/12 计每个部分的数量$\OML/cmm/m/it/12 A[]; A[]; A[]$\TU/HeitiSC(0)/m/
 n/12 ，并做归一化处理。对于所有$\OML/cmm/m/it/12 A[]; A[]; A[]$\TU/HeitiSC(0)/m/n/12 求分组为4的直
 方图统计，因
  []
 
 
-Overfull \hbox (4.83601pt too wide) in paragraph at lines 63--64
+Overfull \hbox (4.83601pt too wide) in paragraph at lines 64--65
 \TU/HeitiSC(0)/m/n/12 本项目中使用SVM作为分类器。使用了SVM-Light项目[[]]的源代码。将已打标的数据提取特征后
  []
 
 
-Overfull \hbox (4.944pt too wide) in paragraph at lines 63--64
+Overfull \hbox (4.944pt too wide) in paragraph at lines 64--65
 \TU/HeitiSC(0)/m/n/12 使用SVM训练，训练好的模型已经放入项目文件夹中留作在线分类使用。在线分类时，提取特征
  []
 
 [2]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 72.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 74.
  [3]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 72.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 74.
  (./perception_doc.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 72.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 72.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 72.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 74.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 74.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 74.
  ) 
 Here is how much of TeX's memory you used:
- 21185 strings out of 493005
- 383869 string characters out of 6134596
+ 21186 strings out of 493005
+ 383872 string characters out of 6134596
  448314 words of memory out of 5000000
- 25031 multiletter control sequences out of 15000+600000
+ 25032 multiletter control sequences out of 15000+600000
  8926 words of font info for 51 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  39i,8n,66p,10375b,339s stack positions out of 5000i,500n,10000p,200000b,80000s

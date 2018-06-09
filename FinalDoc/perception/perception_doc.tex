@@ -58,7 +58,8 @@
   			\end{center}
   		\end{table}
   		其中Lalonde特征为参考Lalonde等人\cite{2}提出的一种基于局部特征的直方图统计量。对于每个点周围的20个邻近点，计算其协方差矩阵特征值，从大到小排序后为$\lambda_0, \lambda_1, \lambda_2$，取$L_1=\lambda_0,L_2=\lambda_0-\lambda_1,L_3=\lambda_1-\lambda_2$。对于所有的$L_1,L_2,L_3$求分组为4的直方图统计，因此一共是12维。\\
-  		Anguelov特征为参考Anguelov等人\cite{3}提出的一种基于局部特征的直方图统计量。对于每个点取周围直径为0.1米，母线长2米的圆柱体内所有点，将所有点从上至下等距离划分为三个部分，统计每个部分的数量$A_1,A_2,A_3$，并做归一化处理。对于所有$A_1,A_2,A_3$求分组为4的直方图统计，因此该特征共12维。
+  		Anguelov特征为参考Anguelov等人\cite{3}提出的一种基于局部特征的直方图统计量。对于每个点取周围直径为0.1米，母线长2米的圆柱体内所有点，将所有点从上至下等距离划分为三个部分，统计每个部分的数量$A_1,A_2,A_3$，并做归一化处理。对于所有$A_1,A_2,A_3$求分组为4的直方图统计，因此该特征共12维。\\
+  		为了加速邻近查询，使用RTree\cite{5}做范围查询。
   	\subsection*{4. 分类}
   		本项目中使用SVM作为分类器。使用了SVM-Light项目\cite{4}的源代码。将已打标的数据提取特征后使用SVM训练，训练好的模型已经放入项目文件夹中留作在线分类使用。在线分类时，提取特征后使用SVM给出预测分类。
   \section*{四. 结果}
@@ -68,5 +69,6 @@
   	\bibitem{2}Lalonde, J. F., Vandapel, N., Huber, D. F., \& Hebert, M. (2006). Natural terrain classification using three‐dimensional ladar data for ground robot mobility. Journal of field robotics, 23(10), 839-861.
   	\bibitem{3}Anguelov, D., Taskarf, B., Chatalbashev, V., Koller, D., Gupta, D., Heitz, G., \& Ng, A. (2005, June). Discriminative learning of markov random fields for segmentation of 3d scan data. In Computer Vision and Pattern Recognition, 2005. CVPR 2005. IEEE Computer Society Conference on (Vol. 2, pp. 169-176). IEEE.
   	\bibitem{4}Joachims, T. (1999). Svmlight: Support vector machine. SVM-Light Support Vector Machine http://svmlight. joachims. org/, University of Dortmund, 19(4).
+  	\bibitem{5}https://github.com/nushoin/RTree
   \end{thebibliography}
  \end{document}
